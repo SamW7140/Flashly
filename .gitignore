@@ -18,5 +18,11 @@ main.js
 # obsidian
 data.json
 
+# Documentation and instruction files
+docs/
+IMPLEMENTATION_PLAN.md
+AGENTS.md
+README.old.md
+
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
