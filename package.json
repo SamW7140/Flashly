@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "flashly",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Powerful spaced repetition flashcards with FSRS algorithm and AI-powered quiz generation for Obsidian.",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
@@ -11,9 +11,13 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": ["obsidian", "flashcards", "spaced-repetition", "fsrs", "quiz", "learning", "ai"],
+	"author": "Flashly Team",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/SamW7140/Flashly-"
+	},
 	"devDependencies": {
 		"@types/jest": "^30.0.0",
 		"@types/node": "^16.11.6",

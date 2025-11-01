@@ -3,7 +3,7 @@
  * Tests vault scanning and card synchronization
  */
 
-import { App } from 'obsidian';
+import { App, CachedMetadata, Loc, Pos, TagCache } from 'obsidian';
 import { ScanCommand } from '../src/commands/scan-command';
 import { StorageService } from '../src/services/storage-service';
 import { FlashcardParser } from '../src/parser/flashcard-parser';
@@ -43,6 +43,32 @@ describe('ScanCommand', () => {
     }, app);
     scanCommand = new ScanCommand(app, storageService, parser);
 
+    const makeLoc = (offset: number): Loc => ({
+      line: 0,
+      col: offset,
+      offset
+    });
+
+    const tagPosition: Pos = {
+      start: makeLoc(0),
+      end: makeLoc(10)
+    };
+
+    const tagCache: TagCache = {
+      tag: '#flashcards',
+      position: tagPosition
+    };
+
+    const metadata: CachedMetadata = {
+      frontmatter: { tags: ['flashcards'] },
+      tags: [tagCache],
+      headings: []
+    };
+
+    app.metadataCache.getFileCache = jest.fn(() => metadata);
+
+    app.vault.read = jest.fn((file: any) => Promise.resolve(file._content || ''));
+
     // Initialize storage
     mockPlugin.loadData.mockResolvedValue(null);
     await storageService.load();
@@ -75,11 +101,9 @@ describe('ScanCommand', () => {
     });
 
     it('should scan vault with markdown files', async () => {
-      const file = createMockTFile('test.md');
-      const content = 'Q::A';
+      const file = createMockTFile('test.md', 'Q::A');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue(content);
 
       await scanCommand.execute();
 
@@ -87,19 +111,16 @@ describe('ScanCommand', () => {
     });
 
     it('should update existing cards', async () => {
-      const file = createMockTFile('test.md');
-      const content = 'Original Q::Original A';
+      const file = createMockTFile('test.md', 'Original Q::Original A');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue(content);
 
       // First scan
       await scanCommand.execute();
       const originalCount = storageService.getCardCount();
 
       // Update content
-      const newContent = 'Updated Q::Updated A';
-      app.vault.read = jest.fn().mockResolvedValue(newContent);
+      file._content = 'Updated Q::Updated A';
 
       // Second scan
       await scanCommand.execute();
@@ -109,11 +130,9 @@ describe('ScanCommand', () => {
     });
 
     it('should remove deleted cards', async () => {
-      const file = createMockTFile('test.md');
-      const content = 'Q::A';
+      const file = createMockTFile('test.md', 'Q::A');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue(content);
 
       // First scan
       await scanCommand.execute();
@@ -131,11 +150,9 @@ describe('ScanCommand', () => {
     });
 
     it('should handle files with no flashcards', async () => {
-      const file = createMockTFile('test.md');
-      const content = 'Just regular markdown content';
+      const file = createMockTFile('test.md', 'Just regular markdown content');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue(content);
 
       await scanCommand.execute();
 
@@ -143,8 +160,7 @@ describe('ScanCommand', () => {
     });
 
     it('should handle mixed content files', async () => {
-      const file = createMockTFile('test.md');
-      const content = `
+      const file = createMockTFile('test.md', `
 # Regular heading
 
 Some text.
@@ -154,10 +170,9 @@ Q1::A1
 More text.
 
 Q2::A2
-      `.trim();
+      `.trim());
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue(content);
 
       await scanCommand.execute();
 
@@ -177,9 +192,8 @@ Q2::A2
     });
 
     it('should show completion notification', async () => {
-      const file = createMockTFile('test.md');
+      const file = createMockTFile('test.md', 'Q::A');
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file]);
-      app.vault.read = jest.fn().mockResolvedValue('Q::A');
 
       const stats = await scanCommand.execute();
 
@@ -200,13 +214,14 @@ Q2::A2
     });
 
     it('should continue scanning after individual file error', async () => {
-      const file1 = createMockTFile('test1.md');
-      const file2 = createMockTFile('test2.md');
+      const file1 = createMockTFile('test1.md', 'Problem file');
+      const file2 = createMockTFile('test2.md', 'Q::A');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file1, file2]);
+      const defaultRead = app.vault.read;
       app.vault.read = jest.fn()
-        .mockRejectedValueOnce(new Error('Read error'))
-        .mockResolvedValueOnce('Q::A');
+        .mockImplementationOnce(() => Promise.reject(new Error('Read error')))
+        .mockImplementation((file: any) => defaultRead(file));
 
       await scanCommand.execute();
 
@@ -217,13 +232,10 @@ Q2::A2
 
   describe('Statistics', () => {
     it('should return scan statistics', async () => {
-      const file1 = createMockTFile('test1.md');
-      const file2 = createMockTFile('test2.md');
+      const file1 = createMockTFile('test1.md', 'Q1::A1');
+      const file2 = createMockTFile('test2.md', 'Q2::A2\nQ3::A3');
 
       app.vault.getMarkdownFiles = jest.fn().mockReturnValue([file1, file2]);
-      app.vault.read = jest.fn()
-        .mockResolvedValueOnce('Q1::A1')
-        .mockResolvedValueOnce('Q2::A2\nQ3::A3');
 
       const stats = await scanCommand.execute();
 

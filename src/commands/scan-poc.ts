@@ -1,7 +1,5 @@
 import { App, Notice, MarkdownView, Command } from 'obsidian';
 import { parseSimpleFlashcards } from '../parser/simple-parser';
-import { FSRSScheduler } from '../scheduler/fsrs-scheduler';
-import { ReviewModal } from '../ui/review-modal';
 
 /**
  * Phase 0 PoC: Scan active note for Q::A flashcards
@@ -37,12 +35,10 @@ export function registerScanPoCCommand(app: App, addCommand: (command: Command) 
 			}
 			
 			new Notice(`Found ${cards.length} flashcard${cards.length !== 1 ? 's' : ''}!`);
-			
-			// For PoC, just show the first card in a review modal
-			const scheduler = new FSRSScheduler();
-			const modal = new ReviewModal(app, cards[0], scheduler);
-			modal.open();
-			
+
+			// PoC: display the first card in a notice to avoid full review dependency
+			const firstCard = cards[0];
+			new Notice(`First card:\n${firstCard.front} -> ${firstCard.back}`);
 			console.log('Parsed cards:', cards);
 		}
 	});

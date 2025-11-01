@@ -9,6 +9,7 @@ import { FlashlyCard } from '../models/card';
 interface StorageData {
   cards: Record<string, SerializedCard>;
   lastSync: number;
+  reviewStats?: SerializedReviewStatistics;
 }
 
 interface SerializedCard {
@@ -30,9 +31,30 @@ interface Statistics {
   cardsNeedingFilling: number;
 }
 
+interface ReviewStatistics {
+  totalSessions: number;
+  totalReviews: number;
+  totalDueReviewed: number;
+  totalNewReviewed: number;
+  cardsReviewedToday: number;
+  lastReviewDate: string | null;
+}
+
+type SerializedReviewStatistics = ReviewStatistics;
+
+const DEFAULT_REVIEW_STATS: ReviewStatistics = {
+  totalSessions: 0,
+  totalReviews: 0,
+  totalDueReviewed: 0,
+  totalNewReviewed: 0,
+  cardsReviewedToday: 0,
+  lastReviewDate: null
+};
+
 export class StorageService {
   private cards: Map<string, FlashlyCard> = new Map();
   private plugin: Plugin;
+  private reviewStats: ReviewStatistics = { ...DEFAULT_REVIEW_STATS };
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
@@ -46,12 +68,19 @@ export class StorageService {
     
     if (!data || !data.cards) {
       this.cards = new Map();
+      this.reviewStats = { ...DEFAULT_REVIEW_STATS };
       return;
     }
 
     // Deserialize cards
     for (const [id, serialized] of Object.entries(data.cards)) {
       this.cards.set(id, this.deserializeCard(serialized));
+    }
+
+    if (data.reviewStats) {
+      this.reviewStats = { ...DEFAULT_REVIEW_STATS, ...data.reviewStats };
+    } else {
+      this.reviewStats = { ...DEFAULT_REVIEW_STATS };
     }
   }
 
@@ -61,7 +90,8 @@ export class StorageService {
   async save(): Promise<void> {
     const data: StorageData = {
       cards: {},
-      lastSync: Date.now()
+      lastSync: Date.now(),
+      reviewStats: this.reviewStats
     };
 
     // Serialize cards
@@ -177,6 +207,47 @@ export class StorageService {
       totalDecks: this.getDeckNames().length,
       cardsNeedingFilling: this.getCardsNeedingFilling().length
     };
+  }
+
+  getReviewStatistics(): ReviewStatistics {
+    return { ...this.reviewStats };
+  }
+
+  async recordReviewSession(summary: {
+    totalReviewed: number;
+    reviewedDue: number;
+    reviewedNew: number;
+    startedAt: Date | null;
+    finishedAt: Date | null;
+  }): Promise<void> {
+    const timestamp = summary.finishedAt ?? summary.startedAt ?? new Date();
+    const dateString = timestamp.toISOString();
+
+    if (!this.isSameDay(dateString, this.reviewStats.lastReviewDate)) {
+      this.reviewStats.cardsReviewedToday = 0;
+    }
+
+    this.reviewStats.totalSessions += 1;
+    this.reviewStats.totalReviews += summary.totalReviewed;
+    this.reviewStats.totalDueReviewed += summary.reviewedDue;
+    this.reviewStats.totalNewReviewed += summary.reviewedNew;
+    this.reviewStats.cardsReviewedToday += summary.totalReviewed;
+    this.reviewStats.lastReviewDate = dateString;
+  }
+
+  private isSameDay(first: string | null, second: string | null): boolean {
+    if (!first || !second) {
+      return false;
+    }
+
+    const a = new Date(first);
+    const b = new Date(second);
+
+    return (
+      a.getUTCFullYear() === b.getUTCFullYear() &&
+      a.getUTCMonth() === b.getUTCMonth() &&
+      a.getUTCDate() === b.getUTCDate()
+    );
   }
 
   /**

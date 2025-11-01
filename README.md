@@ -1,211 +1,89 @@
-# Flashly - Spaced Repetition Flashcards for Obsidian# Obsidian Sample Plugin
+# Flashly - Spaced Repetition Flashcards for Obsidian
 
+Flashly is a powerful Obsidian plugin that transforms your notes into flashcards using spaced repetition learning powered by FSRS (Free Spaced Repetition Scheduler).
 
+## Features
 
-Flashly is an Obsidian plugin that turns your notes into flashcards using spaced repetition learning powered by FSRS (Free Spaced Repetition Scheduler).This is a sample plugin for Obsidian (https://obsidian.md).
+### Multiple Flashcard Formats
 
+Flashly supports four different flashcard formats to match your note-taking style:
 
-
-## FeaturesThis project uses TypeScript to provide type checking and documentation.
-
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
-
-- 📝 **Multiple Flashcard Formats**
-
-  - Q::A inline formatThis sample plugin demonstrates some of the basic functionality the plugin API can do.
-
-  - ?? multi-line format  - Adds a ribbon icon, which shows a Notice when clicked.
-
-  - {cloze} deletion format- Adds a command "Open Sample Modal" which opens a Modal.
-
-  - Header-based question/answer format- Adds a plugin setting tab to the settings page.
-
-- 🎯 **Smart Deck Organization** - Automatically organize cards by note filename or custom deck names- Registers a global click event and output 'click' to the console.
-
-- 🧠 **FSRS Algorithm** - Advanced spaced repetition scheduling- Registers a global interval which logs 'setInterval' to the console.
-
-- 🔍 **Flashcard Browser** - View, search, and manage all your flashcards
-
-- ⚡ **Fast Scanning** - Efficient vault-wide flashcard detection## First time developing plugins?
-
-
-
-## Getting StartedQuick starting guide for new plugin devs:
-
-
-
-### 1. Enable Flashcard Parsing- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-
-**Important:** Flashly only parses notes that are explicitly tagged for flashcard parsing.- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-
-To enable flashcard parsing in a note, add the `flashcards` tag to the frontmatter:- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-
-```yaml- Reload Obsidian to load the new version of your plugin.
-
----- Enable plugin in settings window.
-
-tags: [flashcards]- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
-
----
-
-```## Releasing new releases
-
-
-
-**Without this tag, your note will be ignored during scanning**, even if it contains flashcard syntax.- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-
-### 2. Create Flashcards- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-
-Once your note is tagged, you can use any of these formats:- Publish the release.
-
-
-
-#### Q::A Format (Inline)> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-
-```markdown> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-What is the capital of France::Paris
-
-What is 2+2::4## Adding your plugin to the community plugin list
-
-```
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-
-#### ?? Format (Multi-line)- Publish an initial version.
-
-```markdown- Make sure you have a `README.md` file in the root of your repo.
-
-What is photosynthesis?- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-??
-
-The process by which plants convert light energy into chemical energy.## How to use
-
-```
-
-- Clone this repo.
-
-#### {Cloze} Format- Make sure your NodeJS is at least v16 (`node --version`).
-
-```markdown- `npm i` or `yarn` to install dependencies.
-
-The {mitochondria} is the powerhouse of the cell.- `npm run dev` to start compilation in watch mode.
-
-Paris is the capital of {France}.
-
-```## Manually installing the plugin
-
-
-
-#### Header Format- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
+#### 1. Q::A Format (Inline)
 ```markdown
-
-## What is a cell?## Improve code quality with eslint (optional)
-
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-
-The basic structural unit of all living organisms.- To use eslint with this project, make sure to install eslint from terminal:
-
-```  - `npm install -g eslint`
-
-- To use eslint to analyze this project use this command:
-
-### 3. Scan Your Vault  - `eslint main.ts`
-
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-
-Use the command palette (`Ctrl/Cmd+P`) and run:- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-
-- **"Flashly: Scan vault for flashcards"**  - `eslint ./src/`
-
-
-
-This will find all flashcards in tagged notes and add them to your collection.## Funding URL
-
-
-
-### 4. Review Your CardsYou can include funding URLs where people who use your plugin can financially support it.
-
-
-
-Click the flashcard icon in the ribbon or use the command:The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-- **"Flashly: Open Flashcard Browser"**
-
-```json
-
-Browse your decks and start reviewing!{
-
-    "fundingUrl": "https://buymeacoffee.com"
-
-## Custom Configuration}
-
+What is the capital of France::Paris
+What is 2+2::4
 ```
 
-### Custom Flashcard Tags
-
-If you have multiple URLs, you can also do:
-
-You can configure custom tags in **Settings → Flashly → Parser Settings**.
-
-```json
-
-Default tags: `flashcards`, `cards`{
-
-    "fundingUrl": {
-
-### Custom Deck Names        "Buy Me a Coffee": "https://buymeacoffee.com",
-
-        "GitHub Sponsor": "https://github.com/sponsors",
-
-Control how your flashcards are organized into decks:        "Patreon": "https://www.patreon.com/"
-
-    }
-
-**Option 1: Frontmatter deck property**}
-
-```yaml```
-
----
-
-tags: [flashcards]## API Documentation
-
-deck: My Custom Deck
-
----See https://github.com/obsidianmd/obsidian-api
-
+#### 2. ?? Format (Multi-line)
+```markdown
+What is photosynthesis?
+??
+The process by which plants convert light energy into chemical energy.
 ```
 
-**Option 2: Subtags**
+#### 3. {Cloze} Format
+```markdown
+The {mitochondria} is the powerhouse of the cell.
+Paris is the capital of {France}.
+```
+
+#### 4. Header Format
+```markdown
+## What is a cell?
+The basic structural unit of all living organisms.
+
+## What is the function of mitochondria?
+Mitochondria are the powerhouse of the cell, responsible for producing ATP.
+```
+
+### Smart Deck Organization
+
+- **Automatic deck creation** from note filenames
+- **Custom deck names** via frontmatter `deck:` property
+- **Subtag-based decks**: `#flashcards/biology` creates a "biology" deck
+- **Flexible deck hierarchy** based on your tag structure
+
+### FSRS Algorithm
+
+Flashly uses the modern FSRS (Free Spaced Repetition Scheduler) algorithm for optimal learning efficiency:
+- **20% fewer reviews** compared to traditional SM-2
+- **Adaptive scheduling** based on your performance
+- **SM-2 fallback option** available in settings
+
+### Flashcard Browser
+
+A powerful browser view to manage your flashcards:
+- **Deck overview** with statistics
+- **Search and filter** by deck, status, or content
+- **Study directly** from the browser
+- **Track progress** for each deck
+
+### Review Sessions
+
+- **Keyboard shortcuts** for quick reviews (Space, 1-4, Esc)
+- **Card flipping animation** for better UX
+- **Progress tracking** during sessions
+- **Session summaries** with detailed statistics
+
+## Getting Started
+
+### 1. Tag Your Notes
+
+**Important:** Flashly only parses notes that are explicitly tagged for flashcard parsing.
+
+Add the `flashcards` tag to your note's frontmatter:
+
 ```yaml
 ---
-tags: [flashcards/biology]
+tags: [flashcards]
 ---
 ```
-This creates a "biology" deck.
 
-**Option 3: Auto-naming (Default)**  
-If no custom deck is specified, cards use the note's filename as the deck name.
+Without this tag, your note will be ignored during scanning, even if it contains flashcard syntax.
 
-## Examples
+### 2. Create Flashcards
 
-### Complete Example
-
-See `examples/complete-example.md` for a comprehensive demonstration of all features.
-
-### Simple Example
+Once your note is tagged, you can use any of the supported flashcard formats:
 
 ```markdown
 ---
@@ -219,11 +97,77 @@ Hola::Hello
 Adiós::Goodbye
 
 ## What does "gracias" mean?
-
 Thank you
 ```
 
-This creates a deck called "Spanish Vocabulary" with 3 flashcards.
+### 3. Scan Your Vault
+
+Use the command palette (`Ctrl/Cmd+P`) and run:
+- **"Flashly: Scan vault for flashcards"**
+
+This will find all flashcards in tagged notes and add them to your collection.
+
+### 4. Review Your Cards
+
+Click the flashcard icon in the ribbon or use the command:
+- **"Flashly: Open Flashcard Browser"**
+
+Browse your decks and start reviewing!
+
+## Custom Configuration
+
+### Custom Flashcard Tags
+
+You can configure custom tags in **Settings → Flashly → Header-Based Flashcards**.
+
+Default tags: `flashcards`, `cards`
+
+### Custom Deck Names
+
+Control how your flashcards are organized into decks:
+
+**Option 1: Frontmatter deck property**
+```yaml
+---
+tags: [flashcards]
+deck: My Custom Deck
+---
+```
+
+**Option 2: Subtags**
+```yaml
+---
+tags: [flashcards/biology]
+---
+```
+This creates a "biology" deck.
+
+**Option 3: Auto-naming (Default)**
+If no custom deck is specified, cards use the note's filename as the deck name.
+
+### Scheduler Settings
+
+Choose between FSRS (default) and SM-2 algorithms in the settings:
+- **FSRS**: Modern, adaptive, 20% more efficient
+- **SM-2**: Traditional, reliable fallback option
+
+Configure daily limits:
+- **Review limit**: Maximum due cards per day
+- **New cards limit**: Maximum new cards introduced per day
+
+## Installation
+
+### From Obsidian Community Plugins
+1. Open **Settings → Community Plugins**
+2. Search for "Flashly"
+3. Click **Install**, then **Enable**
+
+### Manual Installation
+1. Download `main.js`, `manifest.json`, and `styles.css` from the latest release
+2. Create a folder: `<vault>/.obsidian/plugins/flashly/`
+3. Copy the files into that folder
+4. Reload Obsidian
+5. Enable the plugin in **Settings → Community Plugins**
 
 ## Development
 
@@ -247,25 +191,11 @@ npm run build
 npm test
 ```
 
-## Installation
-
-### From Obsidian Community Plugins
-1. Open Settings → Community Plugins
-2. Search for "Flashly"
-3. Click Install, then Enable
-
-### Manual Installation
-1. Download `main.js`, `manifest.json`, and `styles.css` from the latest release
-2. Create a folder: `<vault>/.obsidian/plugins/flashly/`
-3. Copy the files into that folder
-4. Reload Obsidian
-5. Enable the plugin in Settings → Community Plugins
-
 ## Troubleshooting
 
 ### My flashcards aren't being found
 
-✅ **Make sure your note has the `flashcards` tag in frontmatter:**
+Make sure your note has the `flashcards` tag in frontmatter:
 
 ```yaml
 ---
@@ -282,8 +212,21 @@ If you're seeing flashcards from notes you didn't intend to parse, check if thos
 ### How do I remove unwanted flashcards?
 
 1. Remove the `flashcards` tag from the note
-2. Run "Scan vault for flashcards" again
+2. Run **"Scan vault for flashcards"** again
 3. The cards from that note will be automatically deleted
+
+### Review session not showing cards
+
+Check your settings:
+- Make sure you have cards due for review
+- Check if deck filters are limiting which cards appear
+- Verify that daily limits haven't been reached
+
+## Examples
+
+See the `examples/` folder for comprehensive demonstrations of all features:
+- `complete-example.md` - Full feature showcase
+- `inline-tag-example.md` - Inline format examples
 
 ## Contributing
 
@@ -295,6 +238,128 @@ MIT License - See LICENSE file for details
 
 ## Support
 
-- 🐛 [Report a Bug](https://github.com/SamW7140/Flashly-/issues)
-- 💡 [Request a Feature](https://github.com/SamW7140/Flashly-/issues)
-- 📖 [Documentation](https://github.com/SamW7140/Flashly-/tree/master/docs)
+- [Report a Bug](https://github.com/SamW7140/Flashly-/issues)
+- [Request a Feature](https://github.com/SamW7140/Flashly-/issues)
+- [Documentation](https://github.com/SamW7140/Flashly-/tree/master/docs)
+
+## Quiz Generation
+
+Flashly includes powerful quiz generation capabilities with **optional AI enhancement**.
+
+### Traditional Quiz Generation
+
+Generate quizzes automatically from your flashcards using rule-based algorithms:
+
+**Question Types:**
+- **Multiple Choice**: Uses other cards from the same deck as plausible distractors
+- **Fill-in-the-Blank**: Extracted from cloze deletions `{text}`
+- **True/False**: Creates statements to validate understanding
+
+**How to Use:**
+1. Run command: **"Generate Quiz"**
+2. Configure:
+   - Number of questions
+   - Question types to include
+   - Deck filter (optional)
+3. Click **"Generate Quiz"**
+4. Take your quiz!
+
+### AI-Powered Quiz Generation 🤖
+
+**NEW!** Use AI to generate creative, contextual quiz questions from your flashcards.
+
+#### Supported AI Providers
+
+**OpenAI** (GPT-4, GPT-4 Turbo, GPT-3.5)
+- Most capable and widely used
+- Great for creative question generation
+- Requires OpenAI API key
+
+**Anthropic** (Claude 3.5 Sonnet, Opus, Haiku)
+- Excellent at educational content
+- Strong reasoning capabilities
+- Requires Anthropic API key
+
+**Google Gemini** (Gemini 1.5 Pro, Flash, Flash-8B)
+- Fast and efficient
+- Strong multimodal capabilities
+- Requires Google AI Studio API key
+- Cost-effective option
+
+**Custom API**
+- Any OpenAI-compatible endpoint
+- Local models (Ollama, LM Studio, etc.)
+- Complete control over your data
+
+#### Setting Up AI Quiz Generation
+
+1. **Enable AI** in Settings → Flashly → Quiz Generation
+2. **Choose Provider**: OpenAI, Anthropic, Gemini, or Custom
+3. **Configure API Key** and model
+4. **Adjust Settings** (optional):
+   - Temperature (creativity level)
+   - Max tokens (response length)
+   - Custom system prompt
+
+#### API Key Setup
+
+**For OpenAI:**
+1. Get API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Paste in Settings → Quiz Generation → OpenAI Configuration
+
+**For Anthropic:**
+1. Get API key from [Anthropic Console](https://console.anthropic.com/)
+2. Paste in Settings → Quiz Generation → Anthropic Configuration
+
+**For Google Gemini:**
+1. Get API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+2. Paste in Settings → Quiz Generation → Gemini Configuration
+
+**For Custom/Local Models:**
+1. Set base URL (e.g., `http://localhost:11434/v1` for Ollama)
+2. Add API key if required
+3. Specify model name
+
+#### Using AI Quiz Generation
+
+1. Run **"Generate Quiz"** command
+2. Configure your quiz
+3. **Toggle "Use AI to generate questions"** ✨
+4. Click **"Generate Quiz"**
+5. AI will create contextual, creative questions!
+
+**Benefits of AI Generation:**
+- More natural question phrasing
+- Better context understanding
+- Creative variations on concepts
+- Explanation generation
+- Adaptive difficulty
+
+**Privacy Note:** When using cloud providers (OpenAI/Anthropic), your flashcard content is sent to their servers. Use local models if you need complete privacy.
+
+## Statistics Dashboard
+
+Track your learning progress with comprehensive statistics:
+
+- **Overview Cards**: Total cards, due today, new cards, review cards
+- **Deck Breakdown**: Detailed stats per deck with progress bars
+- **Activity Heatmap**: 30-day review activity visualization
+- **Card Distribution**: Visual breakdown by learning state
+- **Quiz Statistics**: Quiz history and performance metrics
+
+Access via command: **"View Statistics"**
+
+## Roadmap
+
+### Upcoming Features
+- Export flashcards to various formats
+- Quiz templates and customization
+- Advanced statistics and insights
+- Quiz sharing and collaboration
+
+## Acknowledgments
+
+- Built with the [Obsidian Plugin API](https://docs.obsidian.md)
+- FSRS algorithm implementation via [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs)
+- AI integration powered by OpenAI and Anthropic
+- Inspired by the Obsidian community's dedication to effective learning

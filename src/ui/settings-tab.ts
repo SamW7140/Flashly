@@ -4,6 +4,8 @@
 
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type FlashlyPlugin from '../../main';
+import type { SchedulerType } from '../settings';
+import type { AIProvider } from '../models/quiz';
 
 export class FlashlySettingTab extends PluginSettingTab {
 	plugin: FlashlyPlugin;
@@ -200,5 +202,363 @@ export class FlashlySettingTab extends PluginSettingTab {
 					this.plugin.settings.parser.mixedFormats = value;
 					await this.plugin.saveSettings();
 				}));
+
+		// Review Sessions
+		containerEl.createEl('h3', { text: 'Review Sessions' });
+
+		new Setting(containerEl)
+			.setName('Scheduler algorithm')
+			.setDesc('Choose between FSRS (default) or SM-2 fallback')
+			.addDropdown(dropdown => {
+				const scheduler = this.plugin.settings.review.scheduler;
+				dropdown.addOption('fsrs', 'FSRS (recommended)');
+				dropdown.addOption('sm2', 'SM-2 fallback');
+				dropdown.setValue(scheduler);
+				dropdown.onChange(async (value) => {
+					this.plugin.settings.review.scheduler = value as SchedulerType;
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Daily due limit')
+			.setDesc('Maximum number of due cards per review session')
+			.addText(text => {
+				text.inputEl.type = 'number';
+				text.setPlaceholder('100');
+				text.setValue(String(this.plugin.settings.review.limits.reviewPerDay));
+				text.onChange(async (value) => {
+					const parsed = parseInt(value, 10);
+					this.plugin.settings.review.limits.reviewPerDay = Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Daily new limit')
+			.setDesc('Maximum number of new cards introduced per session')
+			.addText(text => {
+				text.inputEl.type = 'number';
+				text.setPlaceholder('20');
+				text.setValue(String(this.plugin.settings.review.limits.newPerDay));
+				text.onChange(async (value) => {
+					const parsed = parseInt(value, 10);
+					this.plugin.settings.review.limits.newPerDay = Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Include learning cards')
+			.setDesc('Keep cards in learning steps within the queue')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.review.includeLearningCards)
+				.onChange(async (value) => {
+					this.plugin.settings.review.includeLearningCards = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Ignore empty answers')
+			.setDesc('Skip cards without answers until filled in')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.review.excludeEmptyCards)
+				.onChange(async (value) => {
+					this.plugin.settings.review.excludeEmptyCards = value;
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Deck filter')
+			.setDesc('Only review specific decks (comma-separated, leave blank for all decks)')
+			.addText(text => {
+				text.setPlaceholder('Biology, Chemistry');
+				text.setValue(this.plugin.settings.review.deckFilter.join(', '));
+				text.onChange(async (value) => {
+					this.plugin.settings.review.deckFilter = value
+						.split(',')
+						.map(deck => deck.trim())
+						.filter(deck => deck.length > 0);
+					await this.plugin.saveSettings();
+				});
+			});
+
+		new Setting(containerEl)
+			.setName('Keyboard shortcuts')
+			.setDesc('Enable keyboard controls (Space, 1-4, Esc) in review sessions')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.review.enableKeyboardShortcuts)
+				.onChange(async (value) => {
+					this.plugin.settings.review.enableKeyboardShortcuts = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// AI Quiz Generation
+		containerEl.createEl('h3', { text: 'Quiz Generation (AI-Powered)' });
+
+		new Setting(containerEl)
+			.setName('Enable AI quiz generation')
+			.setDesc('Use AI to generate quiz questions from your flashcards')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.quiz.enabled)
+				.onChange(async (value) => {
+					this.plugin.settings.quiz.enabled = value;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh to show/hide AI settings
+				}));
+
+		if (this.plugin.settings.quiz.enabled) {
+			new Setting(containerEl)
+				.setName('AI provider')
+				.setDesc('Choose your AI provider for quiz generation')
+				.addDropdown(dropdown => dropdown
+					.addOption('openai', 'OpenAI (GPT-4, GPT-3.5)')
+					.addOption('anthropic', 'Anthropic (Claude)')
+					.addOption('gemini', 'Google Gemini')
+					.addOption('custom', 'Custom API endpoint')
+					.setValue(this.plugin.settings.quiz.provider)
+					.onChange(async (value) => {
+						this.plugin.settings.quiz.provider = value as AIProvider;
+						await this.plugin.saveSettings();
+						this.display(); // Refresh to show provider-specific settings
+					}));
+
+			// OpenAI Settings
+			if (this.plugin.settings.quiz.provider === 'openai') {
+				containerEl.createEl('h4', { text: 'OpenAI Configuration' });
+
+				new Setting(containerEl)
+					.setName('API key')
+					.setDesc('Your OpenAI API key')
+					.addText(text => {
+						text.inputEl.type = 'password';
+						text.setPlaceholder('sk-...');
+						text.setValue(this.plugin.settings.quiz.openai?.apiKey || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.openai) {
+								this.plugin.settings.quiz.openai = {
+									apiKey: '',
+									model: 'gpt-4'
+								};
+							}
+							this.plugin.settings.quiz.openai.apiKey = value;
+							await this.plugin.saveSettings();
+						});
+					});
+
+				new Setting(containerEl)
+					.setName('Model')
+					.setDesc('OpenAI model to use')
+					.addDropdown(dropdown => dropdown
+						.addOption('gpt-4', 'GPT-4 (most capable)')
+						.addOption('gpt-4-turbo', 'GPT-4 Turbo (faster)')
+						.addOption('gpt-3.5-turbo', 'GPT-3.5 Turbo (cheaper)')
+						.setValue(this.plugin.settings.quiz.openai?.model || 'gpt-4')
+						.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.openai) {
+								this.plugin.settings.quiz.openai = {
+									apiKey: '',
+									model: 'gpt-4'
+								};
+							}
+							this.plugin.settings.quiz.openai.model = value;
+							await this.plugin.saveSettings();
+						}));
+			}
+
+			// Anthropic Settings
+			if (this.plugin.settings.quiz.provider === 'anthropic') {
+				containerEl.createEl('h4', { text: 'Anthropic Configuration' });
+
+				new Setting(containerEl)
+					.setName('API key')
+					.setDesc('Your Anthropic API key')
+					.addText(text => {
+						text.inputEl.type = 'password';
+						text.setPlaceholder('sk-ant-...');
+						text.setValue(this.plugin.settings.quiz.anthropic?.apiKey || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.anthropic) {
+								this.plugin.settings.quiz.anthropic = {
+									apiKey: '',
+									model: 'claude-3-5-sonnet-20241022'
+								};
+							}
+							this.plugin.settings.quiz.anthropic.apiKey = value;
+							await this.plugin.saveSettings();
+						});
+					});
+
+				new Setting(containerEl)
+					.setName('Model')
+					.setDesc('Anthropic model to use')
+					.addDropdown(dropdown => dropdown
+						.addOption('claude-3-5-sonnet-20241022', 'Claude 3.5 Sonnet')
+						.addOption('claude-3-opus-20240229', 'Claude 3 Opus')
+						.addOption('claude-3-sonnet-20240229', 'Claude 3 Sonnet')
+						.addOption('claude-3-haiku-20240307', 'Claude 3 Haiku')
+						.setValue(this.plugin.settings.quiz.anthropic?.model || 'claude-3-5-sonnet-20241022')
+						.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.anthropic) {
+								this.plugin.settings.quiz.anthropic = {
+									apiKey: '',
+									model: 'claude-3-5-sonnet-20241022'
+								};
+							}
+							this.plugin.settings.quiz.anthropic.model = value;
+							await this.plugin.saveSettings();
+						}));
+			}
+
+			// Gemini Settings
+			if (this.plugin.settings.quiz.provider === 'gemini') {
+				containerEl.createEl('h4', { text: 'Google Gemini Configuration' });
+
+				new Setting(containerEl)
+					.setName('API key')
+					.setDesc('Your Google AI Studio API key')
+					.addText(text => {
+						text.inputEl.type = 'password';
+						text.setPlaceholder('AIza...');
+						text.setValue(this.plugin.settings.quiz.gemini?.apiKey || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.gemini) {
+								this.plugin.settings.quiz.gemini = {
+									apiKey: '',
+									model: 'gemini-1.5-pro'
+								};
+							}
+							this.plugin.settings.quiz.gemini.apiKey = value;
+							await this.plugin.saveSettings();
+						});
+					});
+
+				new Setting(containerEl)
+					.setName('Model')
+					.setDesc('Gemini model to use')
+					.addDropdown(dropdown => dropdown
+						.addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
+						.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
+						.addOption('gemini-1.5-flash-8b', 'Gemini 1.5 Flash-8B')
+						.addOption('gemini-1.0-pro', 'Gemini 1.0 Pro')
+						.setValue(this.plugin.settings.quiz.gemini?.model || 'gemini-1.5-pro')
+						.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.gemini) {
+								this.plugin.settings.quiz.gemini = {
+									apiKey: '',
+									model: 'gemini-1.5-pro'
+								};
+							}
+							this.plugin.settings.quiz.gemini.model = value;
+							await this.plugin.saveSettings();
+						}));
+			}
+
+			// Custom API Settings
+			if (this.plugin.settings.quiz.provider === 'custom') {
+				containerEl.createEl('h4', { text: 'Custom API Configuration' });
+
+				new Setting(containerEl)
+					.setName('API key')
+					.setDesc('Your API key')
+					.addText(text => {
+						text.inputEl.type = 'password';
+						text.setPlaceholder('Enter API key');
+						text.setValue(this.plugin.settings.quiz.custom?.apiKey || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.custom) {
+								this.plugin.settings.quiz.custom = {
+									apiKey: '',
+									model: '',
+									baseUrl: ''
+								};
+							}
+							this.plugin.settings.quiz.custom.apiKey = value;
+							await this.plugin.saveSettings();
+						});
+					});
+
+				new Setting(containerEl)
+					.setName('Base URL')
+					.setDesc('API endpoint URL')
+					.addText(text => {
+						text.setPlaceholder('https://api.example.com/v1');
+						text.setValue(this.plugin.settings.quiz.custom?.baseUrl || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.custom) {
+								this.plugin.settings.quiz.custom = {
+									apiKey: '',
+									model: '',
+									baseUrl: ''
+								};
+							}
+							this.plugin.settings.quiz.custom.baseUrl = value;
+							await this.plugin.saveSettings();
+						});
+					});
+
+				new Setting(containerEl)
+					.setName('Model name')
+					.setDesc('Model identifier')
+					.addText(text => {
+						text.setPlaceholder('model-name');
+						text.setValue(this.plugin.settings.quiz.custom?.model || '');
+						text.onChange(async (value) => {
+							if (!this.plugin.settings.quiz.custom) {
+								this.plugin.settings.quiz.custom = {
+									apiKey: '',
+									model: '',
+									baseUrl: ''
+								};
+							}
+							this.plugin.settings.quiz.custom.model = value;
+							await this.plugin.saveSettings();
+						});
+					});
+			}
+
+			// Advanced AI Settings
+			containerEl.createEl('h4', { text: 'Advanced AI Settings' });
+
+			new Setting(containerEl)
+				.setName('Temperature')
+				.setDesc('Creativity level (0-1). Higher = more creative, lower = more focused')
+				.addSlider(slider => slider
+					.setLimits(0, 1, 0.1)
+					.setValue(this.plugin.settings.quiz.temperature)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.quiz.temperature = value;
+						await this.plugin.saveSettings();
+					}));
+
+			new Setting(containerEl)
+				.setName('Max tokens')
+				.setDesc('Maximum response length')
+				.addText(text => {
+					text.inputEl.type = 'number';
+					text.setPlaceholder('2000');
+					text.setValue(String(this.plugin.settings.quiz.maxTokens));
+					text.onChange(async (value) => {
+						const parsed = parseInt(value, 10);
+						this.plugin.settings.quiz.maxTokens = Number.isNaN(parsed) ? 2000 : parsed;
+						await this.plugin.saveSettings();
+					});
+				});
+
+			new Setting(containerEl)
+				.setName('System prompt')
+				.setDesc('Custom instructions for the AI (optional)')
+				.addTextArea(text => {
+					text.setPlaceholder('You are a helpful assistant...');
+					text.setValue(this.plugin.settings.quiz.systemPrompt || '');
+					text.onChange(async (value) => {
+						this.plugin.settings.quiz.systemPrompt = value;
+						await this.plugin.saveSettings();
+					});
+					text.inputEl.rows = 4;
+					text.inputEl.style.width = '100%';
+				});
+		}
 	}
 }

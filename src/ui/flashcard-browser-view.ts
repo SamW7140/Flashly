@@ -270,17 +270,18 @@ export class FlashcardBrowserView extends ItemView {
     // Study button
     const studyBtn = card.createEl('button', {
       cls: 'deck-study-btn',
-      text: `Study Deck →`,
+            text: 'Study Deck',
     });
-    studyBtn.addEventListener('click', () => {
-      this.viewModel.selectDeck(deck.name);
-      this.render();
+    studyBtn.addEventListener('click', async (evt) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      await this.startDeckReview(deck.name);
     });
 
     // Make entire card clickable
     card.addEventListener('click', (evt: MouseEvent) => {
       // Don't trigger if clicking the button directly
-      if (evt.target === studyBtn) return;
+      if (evt.target instanceof Node && studyBtn.contains(evt.target)) return;
       this.viewModel.selectDeck(deck.name);
       this.render();
     });
@@ -566,6 +567,21 @@ export class FlashcardBrowserView extends ItemView {
     this.refreshCards();
   }
 
+  private async startDeckReview(deckName: string) {
+    const command = this.plugin.startReviewCommand;
+    if (!command) {
+      new Notice('Review command is not ready yet. Try again in a moment.');
+      return;
+    }
+
+    try {
+      await command.startReview([deckName]);
+    } catch (error) {
+      console.error('Flashly: Failed to start review session for deck', deckName, error);
+      new Notice('Failed to start review session. Check console for details.');
+    }
+  }
+
   /**
    * Handle keyboard navigation
    */
@@ -664,3 +680,4 @@ export class FlashcardBrowserView extends ItemView {
     }
   }
 }
+
