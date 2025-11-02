@@ -34,11 +34,18 @@ export interface ExportSettings {
 	ankiPlainTextMode: boolean;
 }
 
+export interface TutorialSettings {
+	completed: boolean;
+	completedDate?: string;
+	version: string;
+}
+
 export interface FlashlySettings {
 	parser: FlashcardParserSettings;
 	review: ReviewSettings;
 	quiz: AIQuizSettings;
 	export: ExportSettings;
+	tutorial: TutorialSettings;
 }
 
 export const DEFAULT_SETTINGS: FlashlySettings = {
@@ -86,5 +93,9 @@ export const DEFAULT_SETTINGS: FlashlySettings = {
 		ankiDeckPrefix: 'Flashly',
 		ankiConvertMarkdown: true,
 		ankiPlainTextMode: false
+	},
+	tutorial: {
+		completed: false,
+		version: '1.0.0'
 	}
 };

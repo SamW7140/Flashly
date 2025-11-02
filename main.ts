@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, Notice } from 'obsidian';
 import { FlashlySettings, DEFAULT_SETTINGS } from './src/settings';
 import { FlashlySettingTab } from './src/ui/settings-tab';
 import { StorageService } from './src/services/storage-service';
@@ -15,6 +15,8 @@ import { RefreshDecksCommand } from './src/commands/refresh-decks-command';
 import { GenerateQuizCommand } from './src/commands/generate-quiz-command';
 import { ExportService } from './src/services/export-service';
 import { ExportCommand } from './src/commands/export-command';
+import { ReplayTutorialCommand } from './src/commands/replay-tutorial';
+import { TutorialModal, getTutorialSteps } from './src/ui/tutorial-modal';
 
 export default class FlashlyPlugin extends Plugin {
 	settings: FlashlySettings;
@@ -28,6 +30,7 @@ export default class FlashlyPlugin extends Plugin {
 	generateQuizCommand: GenerateQuizCommand;
 	exportService: ExportService;
 	exportCommand: ExportCommand;
+	replayTutorialCommand: ReplayTutorialCommand;
 	statusBarItem: HTMLElement;
 
 	async onload() {
@@ -108,6 +111,14 @@ export default class FlashlyPlugin extends Plugin {
 			callback: this.exportCommand.getCallback()
 		});
 
+		// Add replay tutorial command
+		this.replayTutorialCommand = new ReplayTutorialCommand(this.app);
+		this.addCommand({
+			id: this.replayTutorialCommand.getId(),
+			name: this.replayTutorialCommand.getName(),
+			callback: this.replayTutorialCommand.getCallback()
+		});
+
 		// Add command to open flashcard browser
 		this.addCommand({
 			id: 'open-flashcard-browser',
@@ -145,6 +156,13 @@ export default class FlashlyPlugin extends Plugin {
 
 		// Add settings tab
 		this.addSettingTab(new FlashlySettingTab(this.app, this));
+
+		// Show tutorial on first use (deferred)
+		if (!this.settings.tutorial.completed) {
+			setTimeout(() => {
+				this.showTutorial();
+			}, 1000);
+		}
 	}
 
 	async activateBrowserView() {
@@ -217,6 +235,23 @@ export default class FlashlyPlugin extends Plugin {
 		// Cleanup if needed
 	}
 
+	private showTutorial(): void {
+		const modal = new TutorialModal(this.app, {
+			steps: getTutorialSteps(),
+			onComplete: async () => {
+				this.settings.tutorial.completed = true;
+				this.settings.tutorial.completedDate = new Date().toISOString();
+				await this.saveSettings();
+				new Notice('Tutorial completed! Access it anytime from Settings.');
+			},
+			onSkip: async () => {
+				this.settings.tutorial.completed = true;
+				await this.saveSettings();
+			}
+		});
+		modal.open();
+	}
+
 	async loadSettings() {
 		const data = await this.loadData() as Partial<FlashlySettings> | null;
 		this.settings = {
@@ -237,6 +272,10 @@ export default class FlashlyPlugin extends Plugin {
 			export: {
 				...DEFAULT_SETTINGS.export,
 				...(data?.export ?? {})
+			},
+			tutorial: {
+				...DEFAULT_SETTINGS.tutorial,
+				...(data?.tutorial ?? {})
 			}
 		};
 	}

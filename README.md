@@ -67,6 +67,16 @@ A powerful browser view to manage your flashcards:
 
 ## Getting Started
 
+When you first activate Flashly, an interactive tutorial will guide you through:
+- Creating flashcards (Q&A, cloze, header-based)
+- Scanning your vault for flashcards
+- Starting review sessions
+- Using the Flashcard Browser
+
+You can replay the tutorial anytime:
+- **From Settings:** Flashly → Tutorial → "Start Tutorial"
+- **From Command Palette:** "Flashly: Replay Tutorial"
+
 ### 1. Tag Your Notes
 
 **Important:** Flashly only parses notes that are explicitly tagged for flashcard parsing.

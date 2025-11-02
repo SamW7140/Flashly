@@ -6,6 +6,7 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import type FlashlyPlugin from '../../main';
 import type { SchedulerType } from '../settings';
 import type { AIProvider } from '../models/quiz';
+import { TutorialModal, getTutorialSteps } from './tutorial-modal';
 
 export class FlashlySettingTab extends PluginSettingTab {
 	plugin: FlashlyPlugin;
@@ -577,5 +578,27 @@ export class FlashlySettingTab extends PluginSettingTab {
 					text.inputEl.style.width = '100%';
 				});
 		}
+
+		// Tutorial Settings
+		containerEl.createEl('h3', { text: 'Tutorial' });
+
+		new Setting(containerEl)
+			.setName('Replay Tutorial')
+			.setDesc('Show the first-time user tutorial again')
+			.addButton(button => button
+				.setButtonText('Start Tutorial')
+				.setTooltip('Replay the interactive tutorial')
+				.onClick(() => {
+					const modal = new TutorialModal(this.app, {
+						steps: getTutorialSteps(),
+						onComplete: () => {
+							// No action needed for replay
+						},
+						onSkip: () => {
+							// No action needed for replay
+						}
+					});
+					modal.open();
+				}));
 	}
 }
