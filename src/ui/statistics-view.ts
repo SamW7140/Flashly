@@ -57,14 +57,12 @@ export class StatisticsView extends ItemView {
 		const titleRow = header.createDiv({ cls: 'stats-title-row' });
 		titleRow.createEl('h2', { text: 'Statistics Dashboard', cls: 'stats-title' });
 
-		const refreshBtn = titleRow.createEl('button', {
-			text: '🔄',
-			cls: 'stats-refresh-btn',
-			attr: { 'aria-label': 'Refresh statistics' }
-		});
-		refreshBtn.addEventListener('click', () => this.render());
-
-		// Get all cards
+	const refreshBtn = titleRow.createEl('button', {
+		cls: 'stats-refresh-btn',
+		attr: { 'aria-label': 'Refresh statistics' }
+	});
+	setIcon(refreshBtn, 'refresh-cw');
+	refreshBtn.addEventListener('click', () => this.render());		// Get all cards
 		const cards = this.plugin.storage.getAllCards();
 
 		// Overview Cards
@@ -139,9 +137,10 @@ export class StatisticsView extends ItemView {
 		deckStats.forEach(deck => {
 			const deckItem = deckList.createDiv({ cls: 'stats-deck-item' });
 
-			const deckHeader = deckItem.createDiv({ cls: 'stats-deck-header' });
-			deckHeader.createSpan({ text: '📁', cls: 'stats-deck-icon' });
-			deckHeader.createSpan({ text: deck.name, cls: 'stats-deck-name' });
+		const deckHeader = deckItem.createDiv({ cls: 'stats-deck-header' });
+		const deckIconEl = deckHeader.createSpan({ cls: 'stats-deck-icon' });
+		setIcon(deckIconEl, 'folder');
+		deckHeader.createSpan({ text: deck.name, cls: 'stats-deck-name' });
 			deckHeader.createSpan({ text: String(deck.total), cls: 'stats-deck-total' });
 
 			const deckDetails = deckItem.createDiv({ cls: 'stats-deck-details' });

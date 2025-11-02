@@ -82,18 +82,96 @@ class GenerateQuizModal extends Modal {
 			});
 
 		// Deck filter
-		new Setting(contentEl)
+		const deckFilterSetting = new Setting(contentEl)
 			.setName('Filter by decks')
-			.setDesc('Only include cards from specific decks (comma-separated, leave blank for all)')
-			.addText(text => {
-				text.setPlaceholder('Biology, Chemistry');
-				text.onChange(value => {
-					this.config.deckFilter = value
-						.split(',')
-						.map(d => d.trim())
-						.filter(d => d.length > 0);
+			.setDesc('Select which decks to include (leave all unchecked for all decks)');
+
+		// Get all available decks
+		const allCards = this.plugin.storage.getAllCards();
+		const deckSet = new Set<string>();
+		allCards.forEach(card => {
+			if (card.deck) {
+				deckSet.add(card.deck);
+			}
+		});
+		const availableDecks = Array.from(deckSet).sort();
+
+		// Create deck selection container
+		const deckContainer = contentEl.createDiv({ cls: 'quiz-deck-selection' });
+
+		if (availableDecks.length === 0) {
+			deckContainer.createDiv({
+				text: 'No decks found. Create some flashcards first!',
+				cls: 'quiz-warning'
+			});
+		} else {
+			const selectedDecks = new Set<string>();
+
+			// Add "Select All" / "Deselect All" buttons
+			const controlsDiv = deckContainer.createDiv({ cls: 'quiz-deck-controls' });
+
+			const selectAllBtn = controlsDiv.createEl('button', {
+				text: 'Select All',
+				cls: 'quiz-deck-control-btn'
+			});
+			selectAllBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				availableDecks.forEach(deck => selectedDecks.add(deck));
+				this.config.deckFilter = Array.from(selectedDecks);
+				// Update all checkboxes
+				deckContainer.querySelectorAll('input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => {
+					checkbox.checked = true;
 				});
 			});
+
+			const deselectAllBtn = controlsDiv.createEl('button', {
+				text: 'Deselect All',
+				cls: 'quiz-deck-control-btn'
+			});
+			deselectAllBtn.addEventListener('click', (e) => {
+				e.preventDefault();
+				selectedDecks.clear();
+				this.config.deckFilter = [];
+				// Update all checkboxes
+				deckContainer.querySelectorAll('input[type="checkbox"]').forEach((checkbox: HTMLInputElement) => {
+					checkbox.checked = false;
+				});
+			});
+
+			// Create scrollable deck list
+			const deckList = deckContainer.createDiv({ cls: 'quiz-deck-list' });
+
+			availableDecks.forEach(deck => {
+				const deckItem = deckList.createDiv({ cls: 'quiz-deck-item' });
+
+				const checkbox = deckItem.createEl('input', {
+					type: 'checkbox'
+				});
+				checkbox.id = `deck-${deck}`;
+
+				const label = deckItem.createEl('label', {
+					text: deck,
+					attr: { for: `deck-${deck}` }
+				});
+				label.addClass('quiz-deck-label');
+
+				// Count cards in this deck
+				const cardCount = allCards.filter(c => c.deck === deck).length;
+				const countSpan = deckItem.createSpan({
+					text: ` (${cardCount} card${cardCount !== 1 ? 's' : ''})`,
+					cls: 'quiz-deck-count'
+				});
+
+				checkbox.addEventListener('change', () => {
+					if (checkbox.checked) {
+						selectedDecks.add(deck);
+					} else {
+						selectedDecks.delete(deck);
+					}
+					this.config.deckFilter = Array.from(selectedDecks);
+				});
+			});
+		}
 
 		// AI Generation
 		if (this.plugin.settings.quiz.enabled) {
@@ -233,7 +311,7 @@ class GenerateQuizModal extends Modal {
 			// Load the quiz into the view
 			const view = leaf.view;
 			if (view && 'loadQuiz' in view) {
-				(view as any).loadQuiz(quiz);
+				await (view as any).loadQuiz(quiz);
 			}
 
 			this.close();

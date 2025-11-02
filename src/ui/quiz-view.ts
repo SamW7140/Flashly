@@ -3,7 +3,7 @@
  * Interactive quiz interface for taking quizzes
  */
 
-import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, Component, Notice } from 'obsidian';
 import type FlashlyPlugin from '../../main';
 import { Quiz, QuizQuestion, checkAnswer, calculateQuizScore } from '../models/quiz';
 
@@ -14,6 +14,8 @@ export class QuizView extends ItemView {
 	currentQuiz: Quiz | null = null;
 	currentQuestionIndex: number = 0;
 	private keydownHandler: (evt: KeyboardEvent) => void;
+	private component: Component | null = null;
+	private debounceTimer: number | null = null;
 
 	constructor(leaf: WorkspaceLeaf, plugin: FlashlyPlugin) {
 		super(leaf);
@@ -34,11 +36,21 @@ export class QuizView extends ItemView {
 	}
 
 	async onOpen(): Promise<void> {
+		this.component = new Component();
+		this.component.load();
 		this.render();
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
 	async onClose(): Promise<void> {
+		if (this.debounceTimer !== null) {
+			window.clearTimeout(this.debounceTimer);
+			this.debounceTimer = null;
+		}
+		if (this.component) {
+			this.component.unload();
+			this.component = null;
+		}
 		document.removeEventListener('keydown', this.keydownHandler);
 		this.containerEl.empty();
 	}
@@ -46,33 +58,57 @@ export class QuizView extends ItemView {
 	/**
 	 * Load and start a quiz
 	 */
-	loadQuiz(quiz: Quiz): void {
+	async loadQuiz(quiz: Quiz): Promise<void> {
 		this.currentQuiz = quiz;
 		this.currentQuestionIndex = 0;
-		this.render();
+		await this.render();
 	}
 
-	private render(): void {
+	private async render(): Promise<void> {
+		// Save scroll position before re-rendering
+		const scrollY = this.containerEl.scrollTop;
+
+		// Clean up old component and create fresh one for this render
+		if (this.component) {
+			this.component.unload();
+		}
+		this.component = new Component();
+		this.component.load();
+
 		const container = this.containerEl;
 		container.empty();
 		container.addClass('flashly-quiz-view');
 
 		if (!this.currentQuiz) {
 			this.renderNoQuiz(container);
+			// Restore scroll position
+			requestAnimationFrame(() => {
+				this.containerEl.scrollTop = scrollY;
+			});
 			return;
 		}
 
 		if (this.currentQuiz.completed) {
 			this.renderResults(container);
+			// Restore scroll position
+			requestAnimationFrame(() => {
+				this.containerEl.scrollTop = scrollY;
+			});
 			return;
 		}
 
-		this.renderQuestion(container);
+		await this.renderQuestion(container);
+
+		// Restore scroll position after re-rendering
+		requestAnimationFrame(() => {
+			this.containerEl.scrollTop = scrollY;
+		});
 	}
 
 	private renderNoQuiz(container: HTMLElement): void {
 		const emptyState = container.createDiv({ cls: 'quiz-empty-state' });
-		emptyState.createDiv({ text: '📝', cls: 'quiz-empty-icon' });
+		const emptyIcon = emptyState.createDiv({ cls: 'quiz-empty-icon' });
+		setIcon(emptyIcon, 'file-question');
 		emptyState.createEl('h3', { text: 'No Quiz Loaded', cls: 'quiz-empty-title' });
 		emptyState.createEl('p', {
 			text: 'Use the "Generate Quiz" command to create a new quiz.',
@@ -80,7 +116,7 @@ export class QuizView extends ItemView {
 		});
 	}
 
-	private renderQuestion(container: HTMLElement): void {
+	private async renderQuestion(container: HTMLElement): Promise<void> {
 		if (!this.currentQuiz) return;
 
 		const question = this.currentQuiz.questions[this.currentQuestionIndex];
@@ -108,19 +144,30 @@ export class QuizView extends ItemView {
 		typeBadge.setText(this.getQuestionTypeLabel(question.type));
 		typeBadge.addClass(`quiz-type-${question.type}`);
 
-		// Question prompt
-		questionContainer.createEl('p', { text: question.prompt, cls: 'quiz-question-prompt' });
+		// Question prompt - render markdown
+		const promptContainer = questionContainer.createDiv({ cls: 'quiz-question-prompt' });
+		const promptContent = promptContainer.createDiv({ cls: 'quiz-prompt-content' });
+		if (this.component) {
+			await MarkdownRenderer.renderMarkdown(question.prompt, promptContent, '', this.component);
+		}
 
 		// Answer area
 		const answerArea = questionContainer.createDiv({ cls: 'quiz-answer-area' });
 
 		if (question.type === 'multiple-choice' && question.options) {
-			this.renderMultipleChoice(answerArea, question);
+			await this.renderMultipleChoice(answerArea, question);
 		} else if (question.type === 'fill-blank') {
 			this.renderFillBlank(answerArea, question);
 		} else if (question.type === 'true-false' && question.options) {
-			this.renderTrueFalse(answerArea, question);
+			await this.renderTrueFalse(answerArea, question);
 		}
+
+		// Check if answer area needs scroll indicator
+		setTimeout(() => {
+			if (answerArea.scrollHeight > answerArea.clientHeight) {
+				answerArea.addClass('has-scroll');
+			}
+		}, 100);
 
 		// Navigation
 		const nav = container.createDiv({ cls: 'quiz-navigation' });
@@ -151,7 +198,7 @@ export class QuizView extends ItemView {
 
 		// Keyboard shortcuts hint
 		const keyboardHints = container.createDiv({ cls: 'quiz-keyboard-hints' });
-		keyboardHints.createEl('span', { text: '⌨️ Shortcuts: ', cls: 'quiz-hint-label' });
+		keyboardHints.createEl('span', { text: 'Shortcuts: ', cls: 'quiz-hint-label' });
 
 		const hints = [
 			'←/→ Navigate',
@@ -175,14 +222,21 @@ export class QuizView extends ItemView {
 		});
 	}
 
-	private renderMultipleChoice(container: HTMLElement, question: QuizQuestion): void {
+	private async renderMultipleChoice(container: HTMLElement, question: QuizQuestion): Promise<void> {
 		if (!question.options) return;
 
-		question.options.forEach((option, index) => {
+		for (let index = 0; index < question.options.length; index++) {
+			const option = question.options[index];
 			const optionBtn = container.createEl('button', {
-				text: option,
 				cls: 'quiz-option-btn'
 			});
+
+			const optionContent = optionBtn.createDiv({ cls: 'quiz-option-content' });
+
+			// Render markdown in options
+			if (this.component) {
+				await MarkdownRenderer.renderMarkdown(option, optionContent, '', this.component);
+			}
 
 			if (question.userAnswer === index) {
 				optionBtn.addClass('quiz-option-selected');
@@ -192,8 +246,9 @@ export class QuizView extends ItemView {
 				question.userAnswer = index;
 				this.render();
 			});
-		});
+		}
 	}
+
 
 	private renderFillBlank(container: HTMLElement, question: QuizQuestion): void {
 		const input = container.createEl('input', {
@@ -206,22 +261,37 @@ export class QuizView extends ItemView {
 			input.value = String(question.userAnswer);
 		}
 
+		// Debounce input to avoid excessive state updates
 		input.addEventListener('input', (e) => {
-			question.userAnswer = (e.target as HTMLInputElement).value;
+			const value = (e.target as HTMLInputElement).value;
+			
+			// Clear existing timer
+			if (this.debounceTimer !== null) {
+				window.clearTimeout(this.debounceTimer);
+			}
+			
+			// Update immediately in question object but don't re-render
+			question.userAnswer = value;
 		});
 
 		// Auto-focus
 		setTimeout(() => input.focus(), 100);
 	}
 
-	private renderTrueFalse(container: HTMLElement, question: QuizQuestion): void {
+	private async renderTrueFalse(container: HTMLElement, question: QuizQuestion): Promise<void> {
 		if (!question.options) return;
 
-		question.options.forEach((option) => {
+		for (const option of question.options) {
 			const optionBtn = container.createEl('button', {
-				text: option,
 				cls: 'quiz-option-btn quiz-option-tf'
 			});
+
+			const optionContent = optionBtn.createDiv({ cls: 'quiz-option-content' });
+
+			// Render markdown in options
+			if (this.component) {
+				await MarkdownRenderer.renderMarkdown(option, optionContent, '', this.component);
+			}
 
 			const answerValue = option.toLowerCase();
 			if (question.userAnswer === answerValue) {
@@ -232,7 +302,7 @@ export class QuizView extends ItemView {
 				question.userAnswer = answerValue;
 				this.render();
 			});
-		});
+		}
 	}
 
 	private async finishQuiz(): Promise<void> {
@@ -255,7 +325,17 @@ export class QuizView extends ItemView {
 
 		// Save quiz
 		const quizStorage = this.plugin.quizStorage;
-		await quizStorage.updateQuiz(this.currentQuiz);
+		try {
+			await quizStorage.updateQuiz(this.currentQuiz);
+			console.log('Quiz updated successfully:', this.currentQuiz.id, 'Completed:', this.currentQuiz.completed);
+			
+			// Verify it was saved
+			const savedQuiz = quizStorage.getQuiz(this.currentQuiz.id);
+			console.log('Quiz retrieved after save:', savedQuiz?.completed);
+		} catch (error) {
+			console.error('Failed to update quiz:', error);
+			new Notice('Failed to save quiz results');
+		}
 
 		// Render results
 		this.render();
@@ -268,7 +348,7 @@ export class QuizView extends ItemView {
 
 		// Score display
 		const scoreCard = resultsContainer.createDiv({ cls: 'quiz-score-card' });
-		scoreCard.createEl('h2', { text: '🎉 Quiz Complete!', cls: 'quiz-results-title' });
+		scoreCard.createEl('h2', { text: 'Quiz Complete!', cls: 'quiz-results-title' });
 
 		const scoreDisplay = scoreCard.createDiv({ cls: 'quiz-score-display' });
 		const scoreValue = scoreDisplay.createDiv({ cls: 'quiz-score-value' });
@@ -280,13 +360,13 @@ export class QuizView extends ItemView {
 		// Performance message
 		const message = scoreCard.createDiv({ cls: 'quiz-performance-message' });
 		if (this.currentQuiz.score! >= 90) {
-			message.setText('🌟 Excellent work!');
+			message.setText('Excellent work!');
 		} else if (this.currentQuiz.score! >= 70) {
-			message.setText('👍 Good job!');
+			message.setText('Good job!');
 		} else if (this.currentQuiz.score! >= 50) {
-			message.setText('📚 Keep practicing!');
+			message.setText('Keep practicing!');
 		} else {
-			message.setText('💪 Review the material and try again!');
+			message.setText('Review the material and try again!');
 		}
 
 		// Question review
@@ -329,9 +409,12 @@ export class QuizView extends ItemView {
 		const actions = resultsContainer.createDiv({ cls: 'quiz-results-actions' });
 
 		const newQuizBtn = actions.createEl('button', {
-			text: '🔄 New Quiz',
+			text: 'New Quiz',
 			cls: 'quiz-action-btn quiz-btn-primary'
 		});
+		const newQuizIcon = newQuizBtn.createSpan({ cls: 'quiz-btn-icon' });
+		setIcon(newQuizIcon, 'refresh-cw');
+		newQuizBtn.prepend(newQuizIcon);
 		newQuizBtn.addEventListener('click', () => {
 			this.currentQuiz = null;
 			this.render();

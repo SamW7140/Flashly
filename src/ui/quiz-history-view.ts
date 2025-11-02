@@ -49,15 +49,18 @@ export class QuizHistoryView extends ItemView {
 		header.createEl('h2', { text: 'Quiz History', cls: 'quiz-history-title' });
 
 		const refreshBtn = header.createEl('button', {
-			text: '🔄',
 			cls: 'quiz-history-refresh-btn',
 			attr: { 'aria-label': 'Refresh quiz history' }
 		});
+		setIcon(refreshBtn, 'refresh-cw');
 		refreshBtn.addEventListener('click', () => this.render());
 
 		// Get all quizzes
 		const allQuizzes = this.plugin.quizStorage.getAllQuizzes();
+		console.log('Quiz History - All quizzes:', allQuizzes.length);
+		console.log('Quiz History - Quizzes:', allQuizzes);
 		const completedQuizzes = allQuizzes.filter(q => q.completed);
+		console.log('Quiz History - Completed quizzes:', completedQuizzes.length);
 
 		if (completedQuizzes.length === 0) {
 			this.renderEmptyState(container);
@@ -89,7 +92,8 @@ export class QuizHistoryView extends ItemView {
 
 	private renderEmptyState(container: HTMLElement): void {
 		const emptyState = container.createDiv({ cls: 'quiz-history-empty' });
-		emptyState.createDiv({ text: '📝', cls: 'quiz-history-empty-icon' });
+		const emptyIcon = emptyState.createDiv({ cls: 'quiz-history-empty-icon' });
+		setIcon(emptyIcon, 'file-question');
 		emptyState.createEl('h3', { text: 'No Quiz History', cls: 'quiz-history-empty-title' });
 		emptyState.createEl('p', {
 			text: 'Complete some quizzes to see your history here.',
@@ -97,7 +101,7 @@ export class QuizHistoryView extends ItemView {
 		});
 
 		const createBtn = emptyState.createEl('button', {
-			text: '📝 Generate Quiz',
+			text: 'Generate Quiz',
 			cls: 'quiz-history-empty-btn'
 		});
 
@@ -201,7 +205,7 @@ export class QuizHistoryView extends ItemView {
 			titleSection.createDiv({ text: quiz.title, cls: 'quiz-card-title' });
 
 			const badge = titleSection.createSpan({ cls: 'quiz-card-badge' });
-			badge.setText(quiz.generationMethod === 'ai-generated' ? '🤖 AI' : '📋 Traditional');
+			badge.setText(quiz.generationMethod === 'ai-generated' ? 'AI' : 'Traditional');
 
 			const scoreEl = cardHeader.createDiv({ cls: 'quiz-card-score' });
 			scoreEl.setText(`${quiz.score}%`);
@@ -223,20 +227,20 @@ export class QuizHistoryView extends ItemView {
 			const detailsGrid = cardDetails.createDiv({ cls: 'quiz-card-details-grid' });
 
 			detailsGrid.createDiv({
-				text: `✓ ${quiz.correctCount} / ${quiz.totalQuestions} correct`,
+				text: `${quiz.correctCount} / ${quiz.totalQuestions} correct`,
 				cls: 'quiz-card-detail'
 			});
 
 			const completedDate = new Date(quiz.completed!);
 			detailsGrid.createDiv({
-				text: `📅 ${this.formatDate(completedDate)}`,
+				text: this.formatDate(completedDate),
 				cls: 'quiz-card-detail'
 			});
 
 			const timeTaken = this.calculateTimeTaken(quiz);
 			if (timeTaken) {
 				detailsGrid.createDiv({
-					text: `⏱️ ${timeTaken}`,
+					text: timeTaken,
 					cls: 'quiz-card-detail'
 				});
 			}
@@ -245,25 +249,25 @@ export class QuizHistoryView extends ItemView {
 			const actions = quizCard.createDiv({ cls: 'quiz-card-actions' });
 
 			const viewBtn = actions.createEl('button', {
-				text: '👁️ View',
+				text: 'View',
 				cls: 'quiz-card-btn quiz-card-btn-primary'
 			});
 			viewBtn.addEventListener('click', () => this.viewQuiz(quiz));
 
 			const retakeBtn = actions.createEl('button', {
-				text: '🔄 Retake',
+				text: 'Retake',
 				cls: 'quiz-card-btn'
 			});
 			retakeBtn.addEventListener('click', () => this.retakeQuiz(quiz));
 
 			const exportBtn = actions.createEl('button', {
-				text: '💾 Export',
+				text: 'Export',
 				cls: 'quiz-card-btn'
 			});
 			exportBtn.addEventListener('click', () => this.exportQuiz(quiz));
 
 			const deleteBtn = actions.createEl('button', {
-				text: '🗑️ Delete',
+				text: 'Delete',
 				cls: 'quiz-card-btn quiz-card-btn-danger'
 			});
 			deleteBtn.addEventListener('click', () => this.confirmDelete(quiz));
@@ -328,7 +332,7 @@ export class QuizHistoryView extends ItemView {
 
 		const view = leaf.view;
 		if (view && 'loadQuiz' in view) {
-			(view as any).loadQuiz(quiz);
+			await (view as any).loadQuiz(quiz);
 		}
 	}
 
@@ -358,10 +362,10 @@ export class QuizHistoryView extends ItemView {
 
 		const view = leaf.view;
 		if (view && 'loadQuiz' in view) {
-			(view as any).loadQuiz(newQuiz);
+			await (view as any).loadQuiz(newQuiz);
 		}
 
-		new Notice('Quiz ready! Good luck! 🍀');
+		new Notice('Quiz ready! Good luck!');
 	}
 
 	private async exportQuiz(quiz: Quiz): Promise<void> {
@@ -381,7 +385,7 @@ export class QuizHistoryView extends ItemView {
 			// Write file
 			await this.app.vault.create(filePath, markdown);
 
-			new Notice(`Quiz exported to ${filePath} 💾`);
+			new Notice(`Quiz exported to ${filePath}`);
 		} catch (error) {
 			console.error('Failed to export quiz:', error);
 			new Notice(`Failed to export quiz: ${error.message}`);
@@ -391,12 +395,11 @@ export class QuizHistoryView extends ItemView {
 	private generateQuizMarkdown(quiz: Quiz): string {
 		const completedDate = new Date(quiz.completed!).toLocaleString();
 		const scorePercent = quiz.score || 0;
-		const scoreEmoji = scorePercent >= 90 ? '🌟' : scorePercent >= 70 ? '👍' : scorePercent >= 50 ? '📚' : '💪';
 
 		let md = `# ${quiz.title}\n\n`;
 		md += `**Completed:** ${completedDate}\n`;
-		md += `**Score:** ${scoreEmoji} ${scorePercent}% (${quiz.correctCount}/${quiz.totalQuestions} correct)\n`;
-		md += `**Generation Method:** ${quiz.generationMethod === 'ai-generated' ? '🤖 AI-Generated' : '📋 Traditional'}\n\n`;
+		md += `**Score:** ${scorePercent}% (${quiz.correctCount}/${quiz.totalQuestions} correct)\n`;
+		md += `**Generation Method:** ${quiz.generationMethod === 'ai-generated' ? 'AI-Generated' : 'Traditional'}\n\n`;
 		md += `---\n\n`;
 
 		quiz.questions.forEach((question, index) => {

@@ -1,4 +1,4 @@
-import { App, Modal, Notice } from 'obsidian';
+import { App, Modal, Notice, MarkdownRenderer, Component } from 'obsidian';
 import { Rating } from 'ts-fsrs';
 import { SupportedRating } from '../scheduler/scheduler-types';
 import { ReviewSessionViewModel, SessionSummary } from '../viewmodels/review-session-viewmodel';
@@ -13,10 +13,12 @@ const RATING_ORDER: SupportedRating[] = [Rating.Again, Rating.Hard, Rating.Good,
 export class ReviewModal extends Modal {
 	private frontEl!: HTMLElement;
 	private backEl!: HTMLElement;
+	private cardContainer!: HTMLElement;
 	private toggleBtn!: HTMLButtonElement;
 	private progressEl!: HTMLElement;
 	private readonly ratingButtons = new Map<SupportedRating, HTMLButtonElement>();
 	private readonly boundKeydown: (event: KeyboardEvent) => void;
+	private component: Component | null = null;
 
 	constructor(
 		app: App,
@@ -34,6 +36,9 @@ export class ReviewModal extends Modal {
 			return;
 		}
 
+		this.component = new Component();
+		this.component.load();
+
 		this.buildLayout();
 		this.render();
 
@@ -43,6 +48,10 @@ export class ReviewModal extends Modal {
 	}
 
 	onClose(): void {
+		if (this.component) {
+			this.component.unload();
+			this.component = null;
+		}
 		this.contentEl.empty();
 		if (this.options.enableKeyboardShortcuts) {
 			window.removeEventListener('keydown', this.boundKeydown);
@@ -57,9 +66,14 @@ export class ReviewModal extends Modal {
 		const title = contentEl.createEl('h2', { text: 'Flashly Review Session' });
 		title.addClass('flashly-review-title');
 
-		const cardContainer = contentEl.createDiv({ cls: 'flashly-card-container' });
-		this.frontEl = cardContainer.createDiv({ cls: 'flashly-card-front' });
-		this.backEl = cardContainer.createDiv({ cls: 'flashly-card-back' });
+		this.cardContainer = contentEl.createDiv({ cls: 'flashly-card-container' });
+		this.frontEl = this.cardContainer.createDiv({ cls: 'flashly-card-front' });
+		this.backEl = this.cardContainer.createDiv({ cls: 'flashly-card-back' });
+
+		// Add scroll listener to manage scroll indicator
+		this.cardContainer.addEventListener('scroll', () => {
+			this.updateScrollIndicator();
+		});
 
 		this.toggleBtn = contentEl.createEl('button', {
 			text: 'Show answer',
@@ -95,6 +109,20 @@ export class ReviewModal extends Modal {
 		this.renderCard();
 		this.renderRatings();
 		this.renderProgress();
+		this.updateScrollIndicator();
+	}
+
+	private updateScrollIndicator(): void {
+		if (!this.cardContainer) return;
+		
+		const { scrollTop, scrollHeight, clientHeight } = this.cardContainer;
+		const isScrolledToBottom = scrollTop + clientHeight >= scrollHeight - 10;
+		
+		if (isScrolledToBottom) {
+			this.cardContainer.addClass('scrolled-to-bottom');
+		} else {
+			this.cardContainer.removeClass('scrolled-to-bottom');
+		}
 	}
 
 	private renderCard(): void {
@@ -103,8 +131,35 @@ export class ReviewModal extends Modal {
 			return;
 		}
 
-		this.frontEl.setText(current.card.front);
-		this.backEl.setText(current.card.back);
+		// Clean up old component and create fresh one for this render
+		if (this.component) {
+			this.component.unload();
+		}
+		this.component = new Component();
+		this.component.load();
+
+		// Clear previous content
+		this.frontEl.empty();
+		this.backEl.empty();
+
+		// Render markdown with full support for code blocks, images, etc.
+		if (this.component) {
+			MarkdownRenderer.render(
+				this.app,
+				current.card.front,
+				this.frontEl,
+				current.card.source.file,
+				this.component
+			);
+
+			MarkdownRenderer.render(
+				this.app,
+				current.card.back,
+				this.backEl,
+				current.card.source.file,
+				this.component
+			);
+		}
 
 		const showingAnswer = this.viewModel.getProgress().showingAnswer;
 		this.backEl.toggleClass('is-visible', showingAnswer);

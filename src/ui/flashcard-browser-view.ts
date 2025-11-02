@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice, TFile } from 'obsidian';
+import { ItemView, WorkspaceLeaf, Notice, TFile, setIcon, MarkdownRenderer, Component } from 'obsidian';
 import { BrowserViewModel, BrowserViewMode, DeckInfo } from '../viewmodels/browser-viewmodel';
 import { FlashlyCard } from '../models/card';
 import type FlashlyPlugin from '../../main';
@@ -12,6 +12,7 @@ export class FlashcardBrowserView extends ItemView {
   private plugin: FlashlyPlugin;
   private deckSearchQuery = '';
   private deckSortBy: DeckSortOption = 'name-asc';
+  private component: Component = new Component();
 
   constructor(leaf: WorkspaceLeaf, plugin: FlashlyPlugin) {
     super(leaf);
@@ -32,6 +33,9 @@ export class FlashcardBrowserView extends ItemView {
   }
 
   async onOpen() {
+    // Load component
+    this.component.load();
+
     // Load cards from storage
     await this.refreshCards();
 
@@ -47,6 +51,11 @@ export class FlashcardBrowserView extends ItemView {
     this.containerEl.setAttribute('tabindex', '-1');
   }
 
+  async onClose() {
+    // Unload component to clean up
+    this.component.unload();
+  }
+
   /**
    * Refresh cards from storage
    */
@@ -59,7 +68,7 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Render the entire view based on current mode
    */
-  private render() {
+  private async render(): Promise<void> {
     const container = this.contentEl;
     container.empty();
     container.addClass('flashcard-browser-view');
@@ -69,7 +78,7 @@ export class FlashcardBrowserView extends ItemView {
     if (state.mode === BrowserViewMode.DECK_LIST) {
       this.renderDeckListView(container);
     } else {
-      this.renderCardView(container);
+      await this.renderCardView(container);
     }
   }
 
@@ -97,9 +106,79 @@ export class FlashcardBrowserView extends ItemView {
   private renderDeckListHeader(container: HTMLElement) {
     const header = container.createDiv({ cls: 'deck-list-header' });
 
-    header.createEl('h2', {
+    const titleRow = header.createDiv({ cls: 'deck-list-title-row' });
+    
+    titleRow.createEl('h2', {
       text: 'Your Decks',
       cls: 'deck-list-title',
+    });
+
+    const headerActions = titleRow.createDiv({ cls: 'deck-list-header-actions' });
+
+    // Quiz buttons
+    const quizBtn = headerActions.createEl('button', {
+      cls: 'deck-header-btn',
+      attr: { 'aria-label': 'Generate Quiz' },
+    });
+    const quizIcon = quizBtn.createSpan({ cls: 'deck-btn-icon' });
+    setIcon(quizIcon, 'help-circle');
+    quizBtn.createSpan({ cls: 'deck-btn-text', text: 'Generate Quiz' });
+    quizBtn.addEventListener('click', () => {
+      (this.app as any).commands.executeCommandById('flashly:generate-quiz');
+    });
+
+    const historyBtn = headerActions.createEl('button', {
+      cls: 'deck-header-btn',
+      attr: { 'aria-label': 'View Quiz History' },
+    });
+    const historyIcon = historyBtn.createSpan({ cls: 'deck-btn-icon' });
+    setIcon(historyIcon, 'history');
+    historyBtn.createSpan({ cls: 'deck-btn-text', text: 'Quiz History' });
+    historyBtn.addEventListener('click', async () => {
+      const leaf = this.app.workspace.getLeaf('tab');
+      await leaf.setViewState({
+        type: 'flashly-quiz-history-view',
+        active: true
+      });
+    });
+
+    const statsBtn = headerActions.createEl('button', {
+      cls: 'deck-header-btn',
+      attr: { 'aria-label': 'View Statistics' },
+    });
+    const statsIcon = statsBtn.createSpan({ cls: 'deck-btn-icon' });
+    setIcon(statsIcon, 'bar-chart-2');
+    statsBtn.createSpan({ cls: 'deck-btn-text', text: 'Statistics' });
+    statsBtn.addEventListener('click', async () => {
+      const leaf = this.app.workspace.getLeaf('tab');
+      await leaf.setViewState({
+        type: 'flashly-statistics-view',
+        active: true
+      });
+    });
+
+    // Scan button
+    const scanBtn = headerActions.createEl('button', {
+      cls: 'deck-header-btn deck-scan-btn',
+      attr: { 'aria-label': 'Scan for Flashcards' },
+    });
+    const scanIcon = scanBtn.createSpan({ cls: 'deck-btn-icon' });
+    setIcon(scanIcon, 'search');
+    scanBtn.createSpan({ cls: 'deck-btn-text', text: 'Scan Vault' });
+    scanBtn.addEventListener('click', () => {
+      (this.app as any).commands.executeCommandById('flashly:scan-vault');
+      new Notice('Scanning vault for flashcards...');
+    });
+
+    // Refresh button
+    const refreshBtn = headerActions.createEl('button', {
+      cls: 'deck-refresh-btn',
+      attr: { 'aria-label': 'Refresh' },
+    });
+    setIcon(refreshBtn, 'refresh-cw');
+    refreshBtn.addEventListener('click', () => {
+      this.refreshCards();
+      new Notice('Refreshed flashcard browser');
     });
 
     const stats = this.viewModel.getStatistics();
@@ -109,17 +188,6 @@ export class FlashcardBrowserView extends ItemView {
     statsText.createSpan({ text: `${stats.totalCards} total cards` });
     statsText.createSpan({ text: ' • ' });
     statsText.createSpan({ text: `${stats.cardsDueToday} due today` });
-
-    // Refresh button
-    const refreshBtn = header.createEl('button', {
-      cls: 'deck-refresh-btn',
-      text: '🔄',
-      attr: { 'aria-label': 'Refresh' },
-    });
-    refreshBtn.addEventListener('click', () => {
-      this.refreshCards();
-      new Notice('Refreshed flashcard browser');
-    });
   }
 
   /**
@@ -236,7 +304,8 @@ export class FlashcardBrowserView extends ItemView {
 
     // Header
     const header = card.createDiv({ cls: 'deck-card-header' });
-    header.createSpan({ cls: 'deck-icon', text: '📚' });
+    const deckIconEl = header.createSpan({ cls: 'deck-icon' });
+    setIcon(deckIconEl, 'book-open');
     header.createSpan({ cls: 'deck-name', text: deck.name });
 
     // Statistics
@@ -292,7 +361,8 @@ export class FlashcardBrowserView extends ItemView {
    */
   private renderDeckListEmptyState(container: HTMLElement) {
     const emptyState = container.createDiv({ cls: 'empty-state' });
-    emptyState.createEl('div', { cls: 'empty-icon', text: '📭' });
+    const emptyIcon = emptyState.createEl('div', { cls: 'empty-icon' });
+    setIcon(emptyIcon, 'inbox');
     emptyState.createEl('div', {
       cls: 'empty-title',
       text: 'No decks found',
@@ -310,7 +380,7 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Render the card view for browsing a single deck
    */
-  private renderCardView(container: HTMLElement) {
+  private async renderCardView(container: HTMLElement): Promise<void> {
     const cardViewContainer = container.createDiv({ cls: 'card-view' });
 
     // Header with breadcrumb
@@ -320,7 +390,7 @@ export class FlashcardBrowserView extends ItemView {
     this.renderCardProgress(cardViewContainer);
 
     // Card display
-    this.renderCardDisplay(cardViewContainer);
+    await this.renderCardDisplay(cardViewContainer);
 
     // Navigation buttons
     this.renderCardNavigation(cardViewContainer);
@@ -355,9 +425,9 @@ export class FlashcardBrowserView extends ItemView {
     // Refresh button
     const refreshBtn = header.createEl('button', {
       cls: 'card-refresh-btn',
-      text: '🔄',
       attr: { 'aria-label': 'Refresh' },
     });
+    setIcon(refreshBtn, 'refresh-cw');
     refreshBtn.addEventListener('click', () => {
       this.refreshCards();
       new Notice('Refreshed cards');
@@ -394,7 +464,7 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Render the card display (front or back)
    */
-  private renderCardDisplay(container: HTMLElement) {
+  private async renderCardDisplay(container: HTMLElement): Promise<void> {
     const display = container.createDiv({ cls: 'card-display' });
     const card = this.viewModel.getCurrentCard();
 
@@ -407,11 +477,11 @@ export class FlashcardBrowserView extends ItemView {
     }
 
     const state = this.viewModel.getViewState();
-    
+
     // Card container with flip animation
     const cardContainer = display.createDiv({ cls: 'card-container' });
     const cardInner = cardContainer.createDiv({ cls: 'card-inner' });
-    
+
     // Add flipped class if showing answer
     if (state.showingAnswer) {
       cardInner.addClass('flipped');
@@ -419,10 +489,13 @@ export class FlashcardBrowserView extends ItemView {
 
     // Front of card (question)
     const cardFront = cardInner.createDiv({ cls: 'card-face card-front' });
-    cardFront.createDiv({
-      cls: 'card-text',
-      text: card.front,
-    });
+    const frontText = cardFront.createDiv({ cls: 'card-text' });
+    await MarkdownRenderer.renderMarkdown(
+      card.front,
+      frontText,
+      card.source.file,
+      this.component
+    );
     const frontBtn = cardFront.createEl('button', {
       cls: 'flip-btn',
       text: 'Show Answer',
@@ -434,10 +507,13 @@ export class FlashcardBrowserView extends ItemView {
 
     // Back of card (answer)
     const cardBack = cardInner.createDiv({ cls: 'card-face card-back' });
-    cardBack.createDiv({
-      cls: 'card-text',
-      text: card.back,
-    });
+    const backText = cardBack.createDiv({ cls: 'card-text' });
+    await MarkdownRenderer.renderMarkdown(
+      card.back,
+      backText,
+      card.source.file,
+      this.component
+    );
     const backBtn = cardBack.createEl('button', {
       cls: 'flip-btn',
       text: 'Show Question',

@@ -38,6 +38,7 @@ export class QuizStorageService {
 		const data = await this.plugin.loadData() as any;
 
 		if (!data || !data.quizStorage) {
+			console.log('Quiz storage: No existing data found, initializing empty storage');
 			this.quizzes = new Map();
 			this.quizHistory = [];
 			return;
@@ -51,26 +52,33 @@ export class QuizStorageService {
 		}
 
 		this.quizHistory = quizStorage.quizHistory || [];
+		console.log('Quiz storage loaded:', this.quizzes.size, 'quizzes');
 	}
 
 	/**
 	 * Save quizzes to storage
 	 */
 	async save(): Promise<void> {
-		const existingData = await this.plugin.loadData() || {};
+		try {
+			const existingData = await this.plugin.loadData() || {};
 
-		const quizStorage: QuizStorageData = {
-			quizzes: {},
-			quizHistory: this.quizHistory
-		};
+			const quizStorage: QuizStorageData = {
+				quizzes: {},
+				quizHistory: this.quizHistory
+			};
 
-		// Serialize quizzes
-		for (const [id, quiz] of this.quizzes.entries()) {
-			quizStorage.quizzes[id] = this.serializeQuiz(quiz);
+			// Serialize quizzes
+			for (const [id, quiz] of this.quizzes.entries()) {
+				quizStorage.quizzes[id] = this.serializeQuiz(quiz);
+			}
+
+			existingData.quizStorage = quizStorage;
+			await this.plugin.saveData(existingData);
+			console.log('Quiz storage saved successfully:', this.quizzes.size, 'quizzes');
+		} catch (error) {
+			console.error('Failed to save quiz storage:', error);
+			throw error;
 		}
-
-		existingData.quizStorage = quizStorage;
-		await this.plugin.saveData(existingData);
 	}
 
 	/**

@@ -88,7 +88,10 @@ export class StorageService {
    * Save cards to plugin data storage
    */
   async save(): Promise<void> {
-    const data: StorageData = {
+    // Load existing data to preserve other keys (like quizStorage)
+    const existingData = await this.plugin.loadData() || {};
+
+    const storageData: StorageData = {
       cards: {},
       lastSync: Date.now(),
       reviewStats: this.reviewStats
@@ -96,10 +99,16 @@ export class StorageService {
 
     // Serialize cards
     for (const [id, card] of this.cards.entries()) {
-      data.cards[id] = this.serializeCard(card);
+      storageData.cards[id] = this.serializeCard(card);
     }
 
-    await this.plugin.saveData(data);
+    // Merge with existing data to preserve other service's data
+    const mergedData = {
+      ...existingData,
+      ...storageData
+    };
+
+    await this.plugin.saveData(mergedData);
   }
 
   /**

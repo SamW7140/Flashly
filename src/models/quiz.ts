@@ -67,6 +67,7 @@ export interface AIQuizSettings {
 		apiKey: string;
 		model: string;
 		baseUrl: string;
+		endpoint?: string;               // Optional endpoint path (defaults to /chat/completions)
 		headers?: Record<string, string>;
 	};
 	temperature: number;                 // 0-1, creativity level
@@ -168,10 +169,10 @@ export const DEFAULT_AI_QUIZ_SETTINGS: AIQuizSettings = {
 	},
 	gemini: {
 		apiKey: '',
-		model: 'gemini-1.5-pro',
+		model: 'gemini-2.5-flash',
 		baseUrl: 'https://generativelanguage.googleapis.com/v1beta'
 	},
 	temperature: 0.7,
-	maxTokens: 2000,
+	maxTokens: 4000,
 	systemPrompt: 'You are a helpful assistant that generates educational quiz questions from flashcard content. Generate clear, accurate questions that test understanding of the material.'
 };

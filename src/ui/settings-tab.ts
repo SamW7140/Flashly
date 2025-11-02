@@ -437,11 +437,11 @@ export class FlashlySettingTab extends PluginSettingTab {
 					.setName('Model')
 					.setDesc('Gemini model to use')
 					.addDropdown(dropdown => dropdown
-						.addOption('gemini-1.5-pro', 'Gemini 1.5 Pro')
-						.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash')
-						.addOption('gemini-1.5-flash-8b', 'Gemini 1.5 Flash-8B')
-						.addOption('gemini-1.0-pro', 'Gemini 1.0 Pro')
-						.setValue(this.plugin.settings.quiz.gemini?.model || 'gemini-1.5-pro')
+						.addOption('gemini-2.5-flash', 'Gemini 2.5 Flash (fast, cheaper)')
+						.addOption('gemini-2.5-pro', 'Gemini 2.5 Pro (most capable)')
+						.addOption('gemini-2.0-flash', 'Gemini 2.0 Flash')
+						.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash (legacy)')
+						.setValue(this.plugin.settings.quiz.gemini?.model || 'gemini-2.5-flash')
 						.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.gemini) {
 								this.plugin.settings.quiz.gemini = {
@@ -497,27 +497,44 @@ export class FlashlySettingTab extends PluginSettingTab {
 						});
 					});
 
-				new Setting(containerEl)
-					.setName('Model name')
-					.setDesc('Model identifier')
-					.addText(text => {
-						text.setPlaceholder('model-name');
-						text.setValue(this.plugin.settings.quiz.custom?.model || '');
-						text.onChange(async (value) => {
-							if (!this.plugin.settings.quiz.custom) {
-								this.plugin.settings.quiz.custom = {
-									apiKey: '',
-									model: '',
-									baseUrl: ''
-								};
-							}
-							this.plugin.settings.quiz.custom.model = value;
-							await this.plugin.saveSettings();
-						});
+			new Setting(containerEl)
+				.setName('Model name')
+				.setDesc('Model identifier')
+				.addText(text => {
+					text.setPlaceholder('model-name');
+					text.setValue(this.plugin.settings.quiz.custom?.model || '');
+					text.onChange(async (value) => {
+						if (!this.plugin.settings.quiz.custom) {
+							this.plugin.settings.quiz.custom = {
+								apiKey: '',
+								model: '',
+								baseUrl: ''
+							};
+						}
+						this.plugin.settings.quiz.custom.model = value;
+						await this.plugin.saveSettings();
 					});
-			}
+				});
 
-			// Advanced AI Settings
+			new Setting(containerEl)
+				.setName('Endpoint path (optional)')
+				.setDesc('API endpoint path (defaults to /chat/completions if not specified)')
+				.addText(text => {
+					text.setPlaceholder('/chat/completions');
+					text.setValue(this.plugin.settings.quiz.custom?.endpoint || '');
+					text.onChange(async (value) => {
+						if (!this.plugin.settings.quiz.custom) {
+							this.plugin.settings.quiz.custom = {
+								apiKey: '',
+								model: '',
+								baseUrl: ''
+							};
+						}
+						this.plugin.settings.quiz.custom.endpoint = value;
+						await this.plugin.saveSettings();
+					});
+				});
+		}			// Advanced AI Settings
 			containerEl.createEl('h4', { text: 'Advanced AI Settings' });
 
 			new Setting(containerEl)

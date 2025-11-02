@@ -248,11 +248,14 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 		}
 
 		const baseUrl = this.settings.gemini.baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
-		const model = this.settings.gemini.model || 'gemini-1.5-pro';
+		const model = this.settings.gemini.model || 'gemini-2.5-flash';
 
 		try {
+			const url = `${baseUrl}/models/${model}:generateContent?key=${this.settings.gemini.apiKey}`;
+			console.log('Gemini API URL:', url.replace(this.settings.gemini.apiKey, 'API_KEY_HIDDEN'));
+
 			const response = await requestUrl({
-				url: `${baseUrl}/models/${model}:generateContent?key=${this.settings.gemini.apiKey}`,
+				url,
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -271,11 +274,58 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 				})
 			});
 
-			const data = response.json;
-			const content = data.candidates[0].content.parts[0].text;
+		const data = response.json;
+		
+		// Log the full response for debugging
+		console.log('Full Gemini API response:', JSON.stringify(data, null, 2));
 
-			// Parse JSON response
-			const parsed = JSON.parse(content);
+		// Check if response has candidates
+		if (!data.candidates || data.candidates.length === 0) {
+			console.error('No candidates in response:', data);
+			
+			// Check for blocked response
+			if (data.promptFeedback?.blockReason) {
+				throw new Error(`Gemini blocked the request: ${data.promptFeedback.blockReason}. Reason: ${data.promptFeedback.safetyRatings?.[0]?.category || 'Unknown'}`);
+			}
+			
+			throw new Error('Gemini returned no response candidates. The request may have been blocked or failed.');
+		}
+
+		const candidate = data.candidates[0];
+		let content = candidate.content.parts[0].text;
+
+		// Check if response was truncated
+		if (candidate.finishReason === 'MAX_TOKENS') {
+			console.warn('Gemini response was truncated due to MAX_TOKENS');
+			throw new Error('Quiz generation incomplete: Response was too long and got truncated. Try generating fewer questions or increase max tokens in settings.');
+		}
+
+		// Log the raw response for debugging
+		console.log('Raw Gemini response:', content.substring(0, 500) + '...');			// Remove markdown code blocks if present (e.g., ```json ... ```)
+			content = content.trim();
+			if (content.startsWith('```')) {
+				// Remove opening ```json or ```
+				content = content.replace(/^```(?:json)?\s*\n/, '');
+				// Remove closing ```
+				content = content.replace(/\n```\s*$/, '');
+				content = content.trim();
+			}
+
+			// Try to parse JSON response
+			let parsed;
+			try {
+				parsed = JSON.parse(content);
+			} catch (parseError) {
+				console.error('JSON parse error:', parseError);
+				console.error('Failed content:', content);
+				throw new Error(`Invalid JSON response from Gemini. The model returned malformed JSON. Try again or check the console for details.`);
+			}
+
+			// Validate response structure
+			if (!parsed.questions || !Array.isArray(parsed.questions)) {
+				console.error('Invalid response structure:', parsed);
+				throw new Error('Gemini response missing "questions" array');
+			}
 
 			// Add IDs to questions
 			const questions: QuizQuestion[] = parsed.questions.map((q: any) => ({
@@ -296,7 +346,16 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			};
 		} catch (error) {
 			console.error('Gemini API error:', error);
-			throw new Error(`Failed to generate quiz with Gemini: ${error.message}`);
+			console.error('Full error details:', JSON.stringify(error, null, 2));
+			
+			// Try to extract more details from the error
+			let errorMessage = error.message || 'Unknown error';
+			if (error.response) {
+				console.error('Response body:', error.response);
+				errorMessage += ` - Response: ${JSON.stringify(error.response)}`;
+			}
+			
+			throw new Error(`Failed to generate quiz with Gemini: ${errorMessage}`);
 		}
 	}
 
@@ -315,8 +374,13 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 				...this.settings.custom.headers
 			};
 
+			// Build URL - use custom endpoint or default to /chat/completions
+			const endpoint = this.settings.custom.endpoint || '/chat/completions';
+			const baseUrl = this.settings.custom.baseUrl.replace(/\/+$/, ''); // Remove trailing slashes
+			const url = endpoint.startsWith('/') ? `${baseUrl}${endpoint}` : `${baseUrl}/${endpoint}`;
+
 			const response = await requestUrl({
-				url: `${this.settings.custom.baseUrl}/chat/completions`,
+				url,
 				method: 'POST',
 				headers,
 				body: JSON.stringify({
