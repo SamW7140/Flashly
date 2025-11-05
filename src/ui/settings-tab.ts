@@ -20,10 +20,10 @@ export class FlashlySettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl('h2', { text: 'Flashly Settings' });
+		containerEl.createEl('h2', { text: 'Flashly settings' });
 
 		// Inline Parser Settings
-		containerEl.createEl('h3', { text: 'Inline Flashcards' });
+		containerEl.createEl('h3', { text: 'Inline flashcards' });
 
 		new Setting(containerEl)
 			.setName('Enable inline flashcards')
@@ -79,7 +79,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 		}
 
 		// Header Parser Settings
-		containerEl.createEl('h3', { text: 'Header-Based Flashcards' });
+		containerEl.createEl('h3', { text: 'Header-based flashcards' });
 
 		new Setting(containerEl)
 			.setName('Enable header-based flashcards')
@@ -205,7 +205,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				}));
 
 		// Review Sessions
-		containerEl.createEl('h3', { text: 'Review Sessions' });
+		containerEl.createEl('h3', { text: 'Review sessions' });
 
 		new Setting(containerEl)
 			.setName('Scheduler algorithm')
@@ -295,7 +295,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				}));
 
 		// AI Quiz Generation
-		containerEl.createEl('h3', { text: 'Quiz Generation (AI-Powered)' });
+		containerEl.createEl('h3', { text: 'Quiz generation (AI-powered)' });
 
 		new Setting(containerEl)
 			.setName('Enable AI quiz generation')
@@ -326,7 +326,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 			// OpenAI Settings
 			if (this.plugin.settings.quiz.provider === 'openai') {
-				containerEl.createEl('h4', { text: 'OpenAI Configuration' });
+				containerEl.createEl('h4', { text: 'OpenAI configuration' });
 
 				new Setting(containerEl)
 					.setName('API key')
@@ -369,7 +369,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 			// Anthropic Settings
 			if (this.plugin.settings.quiz.provider === 'anthropic') {
-				containerEl.createEl('h4', { text: 'Anthropic Configuration' });
+				containerEl.createEl('h4', { text: 'Anthropic configuration' });
 
 				new Setting(containerEl)
 					.setName('API key')
@@ -413,7 +413,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 			// Gemini Settings
 			if (this.plugin.settings.quiz.provider === 'gemini') {
-				containerEl.createEl('h4', { text: 'Google Gemini Configuration' });
+				containerEl.createEl('h4', { text: 'Google Gemini configuration' });
 
 				new Setting(containerEl)
 					.setName('API key')
@@ -457,7 +457,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 			// Custom API Settings
 			if (this.plugin.settings.quiz.provider === 'custom') {
-				containerEl.createEl('h4', { text: 'Custom API Configuration' });
+				containerEl.createEl('h4', { text: 'Custom API configuration' });
 
 				new Setting(containerEl)
 					.setName('API key')
@@ -536,7 +536,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 					});
 				});
 		}			// Advanced AI Settings
-			containerEl.createEl('h4', { text: 'Advanced AI Settings' });
+			containerEl.createEl('h4', { text: 'Advanced AI settings' });
 
 			new Setting(containerEl)
 				.setName('Temperature')
@@ -583,10 +583,10 @@ export class FlashlySettingTab extends PluginSettingTab {
 		containerEl.createEl('h3', { text: 'Tutorial' });
 
 		new Setting(containerEl)
-			.setName('Replay Tutorial')
+			.setName('Replay tutorial')
 			.setDesc('Show the first-time user tutorial again')
 			.addButton(button => button
-				.setButtonText('Replay Tutorial')
+				.setButtonText('Replay tutorial')
 				.setTooltip('Replay the interactive tutorial')
 				.onClick(() => {
 					const modal = new TutorialModal(this.app, {

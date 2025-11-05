@@ -24,7 +24,7 @@ export class QuizHistoryView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return 'Quiz History';
+		return 'Quiz history';
 	}
 
 	getIcon(): string {
@@ -46,7 +46,7 @@ export class QuizHistoryView extends ItemView {
 
 		// Header
 		const header = container.createDiv({ cls: 'quiz-history-header' });
-		header.createEl('h2', { text: 'Quiz History', cls: 'quiz-history-title' });
+		header.createEl('h2', { text: 'Quiz history', cls: 'quiz-history-title' });
 
 		const refreshBtn = header.createEl('button', {
 			cls: 'quiz-history-refresh-btn',
@@ -94,14 +94,14 @@ export class QuizHistoryView extends ItemView {
 		const emptyState = container.createDiv({ cls: 'quiz-history-empty' });
 		const emptyIcon = emptyState.createDiv({ cls: 'quiz-history-empty-icon' });
 		setIcon(emptyIcon, 'file-question');
-		emptyState.createEl('h3', { text: 'No Quiz History', cls: 'quiz-history-empty-title' });
+		emptyState.createEl('h3', { text: 'No quiz history', cls: 'quiz-history-empty-title' });
 		emptyState.createEl('p', {
 			text: 'Complete some quizzes to see your history here.',
 			cls: 'quiz-history-empty-message'
 		});
 
 		const createBtn = emptyState.createEl('button', {
-			text: 'Generate Quiz',
+			text: 'Generate quiz',
 			cls: 'quiz-history-empty-btn'
 		});
 
@@ -120,8 +120,8 @@ export class QuizHistoryView extends ItemView {
 
 		const sortSelect = sortContainer.createEl('select', { cls: 'quiz-history-select' });
 		const sortOptions = [
-			{ value: 'date', label: 'Date (Newest)' },
-			{ value: 'score', label: 'Score (Highest)' },
+			{ value: 'date', label: 'Date (newest)' },
+			{ value: 'score', label: 'Score (highest)' },
 			{ value: 'title', label: 'Title (A-Z)' }
 		];
 
@@ -146,9 +146,9 @@ export class QuizHistoryView extends ItemView {
 
 		const filterSelect = filterContainer.createEl('select', { cls: 'quiz-history-select' });
 		const filterOptions = [
-			{ value: 'all', label: 'All Methods' },
-			{ value: 'traditional', label: 'Traditional Only' },
-			{ value: 'ai', label: 'AI Generated Only' }
+			{ value: 'all', label: 'All methods' },
+			{ value: 'traditional', label: 'Traditional only' },
+			{ value: 'ai', label: 'AI generated only' }
 		];
 
 		filterOptions.forEach(opt => {
@@ -176,10 +176,10 @@ export class QuizHistoryView extends ItemView {
 		const aiQuizzes = quizzes.filter(q => q.generationMethod === 'ai-generated').length;
 
 		const summaryCards = [
-			{ label: 'Total Quizzes', value: totalQuizzes, icon: 'file-text' },
-			{ label: 'Average Score', value: `${avgScore.toFixed(1)}%`, icon: 'target' },
-			{ label: 'Questions Answered', value: totalQuestions, icon: 'help-circle' },
-			{ label: 'AI Generated', value: aiQuizzes, icon: 'sparkles' }
+			{ label: 'Total quizzes', value: totalQuizzes, icon: 'file-text' },
+			{ label: 'Average score', value: `${avgScore.toFixed(1)}%`, icon: 'target' },
+			{ label: 'Questions answered', value: totalQuestions, icon: 'help-circle' },
+			{ label: 'AI generated', value: aiQuizzes, icon: 'sparkles' }
 		];
 
 		summaryCards.forEach(card => {
@@ -455,11 +455,11 @@ export class QuizHistoryView extends ItemView {
 	private formatQuestionType(type: string): string {
 		switch (type) {
 			case 'multiple-choice':
-				return 'Multiple Choice';
+				return 'Multiple choice';
 			case 'fill-blank':
-				return 'Fill in the Blank';
+				return 'Fill in the blank';
 			case 'true-false':
-				return 'True/False';
+				return 'True/false';
 			default:
 				return type;
 		}
@@ -497,7 +497,7 @@ class ExportFileModal extends Modal {
 		const { contentEl } = this;
 		contentEl.addClass('flashly-export-quiz-modal');
 
-		contentEl.createEl('h2', { text: 'Export Quiz' });
+		contentEl.createEl('h2', { text: 'Export quiz' });
 		contentEl.createEl('p', {
 			text: 'Choose where to save the exported quiz markdown file.'
 		});
@@ -560,7 +560,7 @@ class ConfirmDeleteModal extends Modal {
 		const { contentEl } = this;
 		contentEl.addClass('flashly-confirm-delete-modal');
 
-		contentEl.createEl('h2', { text: 'Delete Quiz?' });
+		contentEl.createEl('h2', { text: 'Delete quiz?' });
 		contentEl.createEl('p', {
 			text: `Are you sure you want to delete "${this.quiz.title}"? This action cannot be undone.`
 		});

@@ -55,6 +55,7 @@
   gap: 8px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .deck-header-btn {
@@ -1729,6 +1730,20 @@
   border-radius: 8px;
   padding: 16px;
   transition: all 0.2s;
+}
+
+.stats-deck-item-clickable {
+  cursor: pointer;
+}
+
+.stats-deck-item-clickable:hover {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.stats-deck-item-clickable:active {
+  transform: translateY(0);
 }
 
 .stats-deck-item:hover {

@@ -13,7 +13,7 @@ export class ReplayTutorialCommand {
 	}
 
 	getName(): string {
-		return 'Replay Tutorial';
+		return 'Replay tutorial';
 	}
 
 	getCallback(): () => void {

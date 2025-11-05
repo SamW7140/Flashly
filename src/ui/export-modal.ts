@@ -24,11 +24,11 @@ export class ExportModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: 'Export Flashcards' });
+		contentEl.createEl('h2', { text: 'Export flashcards' });
 
 		// Format selection
 		new Setting(contentEl)
-			.setName('Export Format')
+			.setName('Export format')
 			.setDesc('Choose the format for exported flashcards')
 			.addDropdown(dropdown => {
 				dropdown
@@ -46,12 +46,12 @@ export class ExportModal extends Modal {
 		// Deck selection
 		const decks = this.exportService.getAvailableDecks();
 		const deckContainer = contentEl.createDiv({ cls: 'export-deck-selection' });
-		deckContainer.createEl('h3', { text: 'Select Decks' });
+		deckContainer.createEl('h3', { text: 'Select decks' });
 		
 		// Select All / Deselect All buttons
 		const buttonContainer = deckContainer.createDiv({ cls: 'export-button-group' });
-		const selectAllBtn = buttonContainer.createEl('button', { text: 'Select All' });
-		const deselectAllBtn = buttonContainer.createEl('button', { text: 'Deselect All' });
+		const selectAllBtn = buttonContainer.createEl('button', { text: 'Select all' });
+		const deselectAllBtn = buttonContainer.createEl('button', { text: 'Deselect all' });
 		
 		selectAllBtn.onclick = () => {
 			this.selectedDecks = [...decks];
@@ -89,10 +89,10 @@ export class ExportModal extends Modal {
 		});
 
 		// Export options
-		contentEl.createEl('h3', { text: 'Export Options' });
+		contentEl.createEl('h3', { text: 'Export options' });
 
 		new Setting(contentEl)
-			.setName('Include Tags')
+			.setName('Include tags')
 			.setDesc('Include card tags in export')
 			.addToggle(toggle => toggle
 				.setValue(this.includeTags)
@@ -100,7 +100,7 @@ export class ExportModal extends Modal {
 			);
 
 		new Setting(contentEl)
-			.setName('Include Scheduling Data')
+			.setName('Include scheduling data')
 			.setDesc('Include FSRS scheduling information (review intervals, due dates)')
 			.addToggle(toggle => toggle
 				.setValue(this.includeScheduling)
@@ -108,7 +108,7 @@ export class ExportModal extends Modal {
 			);
 
 		new Setting(contentEl)
-			.setName('Include Media')
+			.setName('Include media')
 			.setDesc('Include images and audio (Anki only)')
 			.addToggle(toggle => toggle
 				.setValue(this.includeMedia)

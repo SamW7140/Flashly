@@ -26,7 +26,7 @@ export class FlashcardBrowserView extends ItemView {
   }
 
   getDisplayText(): string {
-    return 'Flashcard Browser';
+    return 'Flashcard browser';
   }
 
   getIcon(): string {
@@ -48,6 +48,26 @@ export class FlashcardBrowserView extends ItemView {
       this.handleKeyPress(evt);
     });
 
+    // Refresh when view becomes visible after being hidden
+    this.registerEvent(
+      this.app.workspace.on('active-leaf-change', (leaf) => {
+        if (leaf?.view === this) {
+          this.refreshCards();
+        }
+      })
+    );
+
+    // Refresh when files are modified (debounced to avoid excessive updates)
+    let fileModifyTimeout: NodeJS.Timeout | null = null;
+    this.registerEvent(
+      this.app.vault.on('modify', () => {
+        if (fileModifyTimeout) clearTimeout(fileModifyTimeout);
+        fileModifyTimeout = setTimeout(() => {
+          this.refreshCards();
+        }, 2000); // Wait 2 seconds after last modification
+      })
+    );
+
     // Make view focusable
     this.containerEl.setAttribute('tabindex', '-1');
   }
@@ -64,6 +84,13 @@ export class FlashcardBrowserView extends ItemView {
     const cards = this.plugin.storage.getAllCards();
     this.viewModel.setCards(cards);
     this.render();
+  }
+
+  /**
+   * Public method to refresh the view (called externally)
+   */
+  async refresh() {
+    await this.refreshCards();
   }
 
   /**
@@ -110,7 +137,7 @@ export class FlashcardBrowserView extends ItemView {
     const titleRow = header.createDiv({ cls: 'deck-list-title-row' });
     
     titleRow.createEl('h2', {
-      text: 'Your Decks',
+      text: 'Your decks',
       cls: 'deck-list-title',
     });
 
@@ -123,7 +150,7 @@ export class FlashcardBrowserView extends ItemView {
     });
     const quizIcon = quizBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(quizIcon, 'help-circle');
-    quizBtn.createSpan({ cls: 'deck-btn-text', text: 'Generate Quiz' });
+    quizBtn.createSpan({ cls: 'deck-btn-text', text: 'Generate quiz' });
     quizBtn.addEventListener('click', () => {
       (this.app as any).commands.executeCommandById('flashly:generate-quiz');
     });
@@ -134,7 +161,7 @@ export class FlashcardBrowserView extends ItemView {
     });
     const historyIcon = historyBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(historyIcon, 'history');
-    historyBtn.createSpan({ cls: 'deck-btn-text', text: 'Quiz History' });
+    historyBtn.createSpan({ cls: 'deck-btn-text', text: 'Quiz history' });
     historyBtn.addEventListener('click', async () => {
       const leaf = this.app.workspace.getLeaf('tab');
       await leaf.setViewState({
@@ -165,21 +192,10 @@ export class FlashcardBrowserView extends ItemView {
     });
     const scanIcon = scanBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(scanIcon, 'search');
-    scanBtn.createSpan({ cls: 'deck-btn-text', text: 'Scan Vault' });
+    scanBtn.createSpan({ cls: 'deck-btn-text', text: 'Scan vault' });
     scanBtn.addEventListener('click', () => {
       (this.app as any).commands.executeCommandById('flashly:scan-vault');
       new Notice('Scanning vault for flashcards...');
-    });
-
-    // Refresh button
-    const refreshBtn = headerActions.createEl('button', {
-      cls: 'deck-refresh-btn',
-      attr: { 'aria-label': 'Refresh' },
-    });
-    setIcon(refreshBtn, 'refresh-cw');
-    refreshBtn.addEventListener('click', () => {
-      this.refreshCards();
-      new Notice('Refreshed flashcard browser');
     });
 
     const stats = this.viewModel.getStatistics();
@@ -219,9 +235,9 @@ export class FlashcardBrowserView extends ItemView {
     const sortOptions: Array<{ value: DeckSortOption; label: string }> = [
       { value: 'name-asc', label: 'Name (A-Z)' },
       { value: 'name-desc', label: 'Name (Z-A)' },
-      { value: 'cards-desc', label: 'Most Cards' },
-      { value: 'due-desc', label: 'Most Due' },
-      { value: 'studied-desc', label: 'Recently Studied' },
+      { value: 'cards-desc', label: 'Most cards' },
+      { value: 'due-desc', label: 'Most due' },
+      { value: 'studied-desc', label: 'Recently studied' },
     ];
 
     for (const opt of sortOptions) {
@@ -340,7 +356,7 @@ export class FlashcardBrowserView extends ItemView {
     // Study button
     const studyBtn = card.createEl('button', {
       cls: 'deck-study-btn',
-            text: 'Study Deck',
+            text: 'Study deck',
     });
     studyBtn.addEventListener('click', async (evt) => {
       evt.preventDefault();
@@ -409,7 +425,7 @@ export class FlashcardBrowserView extends ItemView {
     // Back button
     const backBtn = header.createEl('button', {
       cls: 'back-to-decks-btn',
-      text: '← Back to Decks',
+      text: '← Back to decks',
     });
     backBtn.addEventListener('click', () => {
       this.viewModel.backToDeckList();
@@ -421,17 +437,6 @@ export class FlashcardBrowserView extends ItemView {
     header.createDiv({
       cls: 'deck-title',
       text: state.selectedDeck ?? '',
-    });
-
-    // Refresh button
-    const refreshBtn = header.createEl('button', {
-      cls: 'card-refresh-btn',
-      attr: { 'aria-label': 'Refresh' },
-    });
-    setIcon(refreshBtn, 'refresh-cw');
-    refreshBtn.addEventListener('click', () => {
-      this.refreshCards();
-      new Notice('Refreshed cards');
     });
   }
 
@@ -499,7 +504,7 @@ export class FlashcardBrowserView extends ItemView {
     );
     const frontBtn = cardFront.createEl('button', {
       cls: 'flip-btn',
-      text: 'Show Answer',
+      text: 'Show answer',
     });
     frontBtn.addEventListener('click', () => {
       this.flipWithAnimation();
@@ -516,7 +521,7 @@ export class FlashcardBrowserView extends ItemView {
     );
     const backBtn = cardBack.createEl('button', {
       cls: 'flip-btn',
-      text: 'Show Question',
+      text: 'Show question',
     });
     backBtn.addEventListener('click', () => {
       this.flipWithAnimation();
@@ -567,7 +572,7 @@ export class FlashcardBrowserView extends ItemView {
     // Open note button
     const openBtn = actions.createEl('button', {
       cls: 'action-btn open-btn',
-      text: 'Open Note',
+      text: 'Open note',
     });
     openBtn.addEventListener('click', () => this.openCardNote(card));
 

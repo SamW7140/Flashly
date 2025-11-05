@@ -32,7 +32,7 @@ export class StatisticsView extends ItemView {
 	}
 
 	getDisplayText(): string {
-		return 'Flashcard Statistics';
+		return 'Flashcard statistics';
 	}
 
 	getIcon(): string {
@@ -55,7 +55,7 @@ export class StatisticsView extends ItemView {
 		// Header
 		const header = container.createDiv({ cls: 'stats-header' });
 		const titleRow = header.createDiv({ cls: 'stats-title-row' });
-		titleRow.createEl('h2', { text: 'Statistics Dashboard', cls: 'stats-title' });
+		titleRow.createEl('h2', { text: 'Statistics dashboard', cls: 'stats-title' });
 
 	const refreshBtn = titleRow.createEl('button', {
 		cls: 'stats-refresh-btn',
@@ -99,10 +99,10 @@ export class StatisticsView extends ItemView {
 		).length;
 
 		const overviewCards = [
-			{ label: 'Total Cards', value: totalCards, icon: 'library', color: 'blue' },
-			{ label: 'Due Today', value: dueCards, icon: 'clock', color: 'orange' },
-			{ label: 'New Cards', value: newCards, icon: 'sparkles', color: 'green' },
-			{ label: 'Review Cards', value: reviewCards, icon: 'repeat', color: 'purple' }
+			{ label: 'Total cards', value: totalCards, icon: 'library', color: 'blue' },
+			{ label: 'Due today', value: dueCards, icon: 'clock', color: 'orange' },
+			{ label: 'New cards', value: newCards, icon: 'sparkles', color: 'green' },
+			{ label: 'Review cards', value: reviewCards, icon: 'repeat', color: 'purple' }
 		];
 
 		overviewCards.forEach(card => {
@@ -120,7 +120,7 @@ export class StatisticsView extends ItemView {
 
 	private renderDeckBreakdown(container: HTMLElement, cards: FlashlyCard[]): void {
 		const section = container.createDiv({ cls: 'stats-section' });
-		section.createEl('h3', { text: 'Deck Breakdown', cls: 'stats-section-title' });
+		section.createEl('h3', { text: 'Deck breakdown', cls: 'stats-section-title' });
 
 		const deckStats = this.calculateDeckStats(cards);
 
@@ -136,6 +136,18 @@ export class StatisticsView extends ItemView {
 
 		deckStats.forEach(deck => {
 			const deckItem = deckList.createDiv({ cls: 'stats-deck-item' });
+			deckItem.addClass('stats-deck-item-clickable');
+
+			// Find the first card in this deck to get the source file
+			const firstCard = cards.find(c => c.deck === deck.name);
+			if (firstCard) {
+				deckItem.addEventListener('click', async () => {
+					const file = this.app.vault.getAbstractFileByPath(firstCard.source.file);
+					if (file) {
+						await this.app.workspace.openLinkText(firstCard.source.file, '', false);
+					}
+				});
+			}
 
 		const deckHeader = deckItem.createDiv({ cls: 'stats-deck-header' });
 		const deckIconEl = deckHeader.createSpan({ cls: 'stats-deck-icon' });
@@ -173,7 +185,7 @@ export class StatisticsView extends ItemView {
 
 	private renderReviewActivity(container: HTMLElement, cards: FlashlyCard[]): void {
 		const section = container.createDiv({ cls: 'stats-section' });
-		section.createEl('h3', { text: 'Review Activity', cls: 'stats-section-title' });
+		section.createEl('h3', { text: 'Review activity', cls: 'stats-section-title' });
 
 		// Calculate review activity for the last 30 days
 		const today = new Date();
@@ -222,7 +234,7 @@ export class StatisticsView extends ItemView {
 
 	private renderCardDistribution(container: HTMLElement, cards: FlashlyCard[]): void {
 		const section = container.createDiv({ cls: 'stats-section' });
-		section.createEl('h3', { text: 'Card Distribution', cls: 'stats-section-title' });
+		section.createEl('h3', { text: 'Card distribution', cls: 'stats-section-title' });
 
 		const distribution = {
 			new: cards.filter(c => c.fsrsCard?.state === State.New).length,
@@ -294,7 +306,7 @@ export class StatisticsView extends ItemView {
 
 	private renderQuizStatistics(container: HTMLElement): void {
 		const section = container.createDiv({ cls: 'stats-section' });
-		section.createEl('h3', { text: 'Quiz Performance', cls: 'stats-section-title' });
+		section.createEl('h3', { text: 'Quiz performance', cls: 'stats-section-title' });
 
 		const quizzes = this.plugin.quizStorage.getAllQuizzes();
 		const completedQuizzes = quizzes.filter(q => q.completed);
@@ -337,7 +349,7 @@ export class StatisticsView extends ItemView {
 
 		// Recent quiz history
 		const historySection = section.createDiv({ cls: 'stats-quiz-history' });
-		historySection.createEl('h4', { text: 'Recent Quizzes', cls: 'stats-subsection-title' });
+		historySection.createEl('h4', { text: 'Recent quizzes', cls: 'stats-subsection-title' });
 
 		const recentQuizzes = completedQuizzes
 			.sort((a, b) => new Date(b.completed!).getTime() - new Date(a.completed!).getTime())
@@ -381,7 +393,7 @@ export class StatisticsView extends ItemView {
 
 		// Quiz type breakdown
 		const typeSection = section.createDiv({ cls: 'stats-quiz-types' });
-		typeSection.createEl('h4', { text: 'Question Type Performance', cls: 'stats-subsection-title' });
+		typeSection.createEl('h4', { text: 'Question type performance', cls: 'stats-subsection-title' });
 
 		const typeStats = this.calculateQuizTypeStats(completedQuizzes);
 		const typeGrid = typeSection.createDiv({ cls: 'stats-type-grid' });

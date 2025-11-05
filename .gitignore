@@ -25,6 +25,8 @@ AGENTS.md
 README.old.md
 agents.md
 channellog.md
+PRE_LAUNCH_CHECKLIST.md
+SUBMISSION_GUIDE.md
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store

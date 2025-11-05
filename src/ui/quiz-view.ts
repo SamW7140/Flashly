@@ -109,7 +109,7 @@ export class QuizView extends ItemView {
 		const emptyState = container.createDiv({ cls: 'quiz-empty-state' });
 		const emptyIcon = emptyState.createDiv({ cls: 'quiz-empty-icon' });
 		setIcon(emptyIcon, 'file-question');
-		emptyState.createEl('h3', { text: 'No Quiz Loaded', cls: 'quiz-empty-title' });
+		emptyState.createEl('h3', { text: 'No quiz loaded', cls: 'quiz-empty-title' });
 		emptyState.createEl('p', {
 			text: 'Use the "Generate Quiz" command to create a new quiz.',
 			cls: 'quiz-empty-message'
@@ -348,7 +348,7 @@ export class QuizView extends ItemView {
 
 		// Score display
 		const scoreCard = resultsContainer.createDiv({ cls: 'quiz-score-card' });
-		scoreCard.createEl('h2', { text: 'Quiz Complete!', cls: 'quiz-results-title' });
+		scoreCard.createEl('h2', { text: 'Quiz complete!', cls: 'quiz-results-title' });
 
 		const scoreDisplay = scoreCard.createDiv({ cls: 'quiz-score-display' });
 		const scoreValue = scoreDisplay.createDiv({ cls: 'quiz-score-value' });
@@ -371,7 +371,7 @@ export class QuizView extends ItemView {
 
 		// Question review
 		const reviewSection = resultsContainer.createDiv({ cls: 'quiz-review-section' });
-		reviewSection.createEl('h3', { text: 'Review Answers', cls: 'quiz-review-title' });
+		reviewSection.createEl('h3', { text: 'Review answers', cls: 'quiz-review-title' });
 
 		this.currentQuiz.questions.forEach((question, index) => {
 			const questionCard = reviewSection.createDiv({ cls: 'quiz-review-question' });
@@ -409,7 +409,7 @@ export class QuizView extends ItemView {
 		const actions = resultsContainer.createDiv({ cls: 'quiz-results-actions' });
 
 		const newQuizBtn = actions.createEl('button', {
-			text: 'New Quiz',
+			text: 'New quiz',
 			cls: 'quiz-action-btn quiz-btn-primary'
 		});
 		const newQuizIcon = newQuizBtn.createSpan({ cls: 'quiz-btn-icon' });

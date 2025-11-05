@@ -3,9 +3,8 @@
 	"name": "Flashly",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Powerful spaced repetition flashcards with FSRS algorithm and AI-powered quiz generation for Obsidian.",
+	"description": "Create and review spaced repetition flashcards with FSRS algorithm. Supports multiple formats, AI-powered quiz generation, and comprehensive progress tracking.",
 	"author": "Flashly Team",
 	"authorUrl": "https://github.com/SamW7140/Flashly-",
-	"fundingUrl": "https://github.com/SamW7140/Flashly-",
 	"isDesktopOnly": false
 }

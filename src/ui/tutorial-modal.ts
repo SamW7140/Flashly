@@ -98,7 +98,7 @@ export class TutorialModal extends Modal {
 		// Skip button (changes to "Finish" on last step)
 		const isLastStep = this.currentStep === this.steps.length - 1;
 		const skipButton = buttonContainer.createEl('button', { 
-			text: isLastStep ? 'Finish' : 'Skip Tutorial',
+			text: isLastStep ? 'Finish' : 'Skip tutorial',
 			cls: isLastStep ? '' : 'flashly-tutorial-skip'
 		});
 		skipButton.onclick = () => {
@@ -175,7 +175,7 @@ export function getTutorialSteps(): TutorialStep[] {
 			`
 		},
 		{
-			title: 'Creating Flashcards',
+			title: 'Creating flashcards',
 			content: `
 				<p>There are three ways to create flashcards:</p>
 				
@@ -192,7 +192,7 @@ export function getTutorialSteps(): TutorialStep[] {
 			`
 		},
 		{
-			title: 'Scanning Your Vault',
+			title: 'Scanning your vault',
 			content: `
 				<p>Once you've created flashcards, run the scan command:</p>
 				<ol>
@@ -207,7 +207,7 @@ export function getTutorialSteps(): TutorialStep[] {
 			`
 		},
 		{
-			title: 'Reviewing Flashcards',
+			title: 'Reviewing flashcards',
 			content: `
 				<p>To start reviewing:</p>
 				<ul>
@@ -227,7 +227,7 @@ export function getTutorialSteps(): TutorialStep[] {
 			`
 		},
 		{
-			title: 'Flashcard Browser & More',
+			title: 'Flashcard browser & more',
 			content: `
 				<p>The Flashcard Browser lets you:</p>
 				<ul>

@@ -8,7 +8,7 @@ import { ExportModal } from '../ui/export-modal';
 
 export class ExportCommand {
 	private id = 'export-flashcards';
-	private name = 'Export Flashcards';
+	private name = 'Export flashcards';
 
 	constructor(
 		private app: App,

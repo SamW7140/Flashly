@@ -3,12 +3,14 @@ import { StorageService } from '../services/storage-service';
 import { FlashlySettings } from '../settings';
 import { DeckSelectModal } from '../ui/deck-select-modal';
 import { State } from 'ts-fsrs';
+import type FlashlyPlugin from '../../main';
 
 export class RefreshDecksCommand {
 	constructor(
 		private readonly app: App,
 		private readonly storage: StorageService,
-		private readonly getSettings: () => FlashlySettings
+		private readonly getSettings: () => FlashlySettings,
+		private readonly plugin?: FlashlyPlugin
 	) {}
 
 	getId(): string {
@@ -60,6 +62,12 @@ export class RefreshDecksCommand {
 		}
 
 		await this.storage.save();
+
+		// Refresh browser views to show updated cards
+		if (this.plugin) {
+			this.plugin.refreshBrowserViews();
+		}
+
 		new Notice(`Forced ${updatedCount} card${updatedCount === 1 ? '' : 's'} ready for review.`);
 	}
 

@@ -75,21 +75,21 @@ export default class FlashlyPlugin extends Plugin {
 		);
 
 		// Initialize commands
-		this.scanCommand = new ScanCommand(this.app, this.storage, this.parser);
+		this.scanCommand = new ScanCommand(this.app, this.storage, this.parser, this);
 		this.addCommand({
 			id: this.scanCommand.getId(),
 			name: this.scanCommand.getName(),
 			callback: this.scanCommand.getCallback()
 		});
 
-		this.startReviewCommand = new StartReviewCommand(this.app, this.storage, this.reviewQueue, () => this.settings);
+		this.startReviewCommand = new StartReviewCommand(this.app, this.storage, this.reviewQueue, () => this.settings, this);
 		this.addCommand({
 			id: this.startReviewCommand.getId(),
 			name: this.startReviewCommand.getName(),
 			callback: this.startReviewCommand.getCallback()
 		});
 
-		this.refreshDecksCommand = new RefreshDecksCommand(this.app, this.storage, () => this.settings);
+		this.refreshDecksCommand = new RefreshDecksCommand(this.app, this.storage, () => this.settings, this);
 		this.addCommand({
 			id: this.refreshDecksCommand.getId(),
 			name: this.refreshDecksCommand.getName(),
@@ -122,26 +122,26 @@ export default class FlashlyPlugin extends Plugin {
 		// Add command to open flashcard browser
 		this.addCommand({
 			id: 'open-flashcard-browser',
-			name: 'Open Flashcard Browser',
+			name: 'Open flashcard browser',
 			callback: () => this.activateBrowserView()
 		});
 
 		// Add command to open statistics view
 		this.addCommand({
 			id: 'open-statistics',
-			name: 'View Statistics',
+			name: 'View statistics',
 			callback: () => this.activateStatisticsView()
 		});
 
 		// Add command to open quiz history
 		this.addCommand({
 			id: 'open-quiz-history',
-			name: 'View Quiz History',
+			name: 'View quiz history',
 			callback: () => this.activateQuizHistoryView()
 		});
 
 		// Add ribbon icon for flashcard browser
-		this.addRibbonIcon('layers', 'Flashcard Browser', () => {
+		this.addRibbonIcon('layers', 'Flashcard browser', () => {
 			this.activateBrowserView();
 		});
 
@@ -185,6 +185,19 @@ export default class FlashlyPlugin extends Plugin {
 		if (leaf) {
 			workspace.revealLeaf(leaf);
 		}
+	}
+
+	/**
+	 * Refresh all open browser views
+	 */
+	refreshBrowserViews() {
+		const leaves = this.app.workspace.getLeavesOfType(FLASHCARD_BROWSER_VIEW_TYPE);
+		leaves.forEach(leaf => {
+			const view = leaf.view;
+			if (view instanceof FlashcardBrowserView) {
+				view.refresh();
+			}
+		});
 	}
 
 	async activateStatisticsView() {
@@ -242,7 +255,7 @@ export default class FlashlyPlugin extends Plugin {
 				this.settings.tutorial.completed = true;
 				this.settings.tutorial.completedDate = new Date().toISOString();
 				await this.saveSettings();
-				new Notice('Tutorial completed! Access it anytime from Settings.');
+				new Notice('Tutorial completed! Access it anytime from settings.');
 			},
 			onSkip: async () => {
 				this.settings.tutorial.completed = true;

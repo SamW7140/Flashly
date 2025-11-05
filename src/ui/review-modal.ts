@@ -65,7 +65,7 @@ export class ReviewModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('flashly-review-modal');
 
-		const title = contentEl.createEl('h2', { text: 'Flashly Review Session' });
+		const title = contentEl.createEl('h2', { text: 'Flashly review session' });
 		title.addClass('flashly-review-title');
 
 		// Create 3D flip structure

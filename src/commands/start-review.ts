@@ -8,13 +8,15 @@ import { ReviewSessionViewModel } from '../viewmodels/review-session-viewmodel';
 import { ReviewModal } from '../ui/review-modal';
 import { DeckSelectModal } from '../ui/deck-select-modal';
 import { FlashlySettings, SchedulerType } from '../settings';
+import type FlashlyPlugin from '../../main';
 
 export class StartReviewCommand {
 	constructor(
 		private app: App,
 		private storage: StorageService,
 		private queueService: ReviewQueueService,
-		private getSettings: () => FlashlySettings
+		private getSettings: () => FlashlySettings,
+		private plugin?: FlashlyPlugin
 	) {}
 
 	getId(): string {
@@ -22,7 +24,7 @@ export class StartReviewCommand {
 	}
 
 	getName(): string {
-		return 'Start Review Session';
+		return 'Start review session';
 	}
 
 	getCallback(): () => Promise<void> {
@@ -70,6 +72,10 @@ export class StartReviewCommand {
 			onComplete: async (summary) => {
 				await this.storage.recordReviewSession(summary);
 				await this.storage.save();
+				// Refresh browser views to show updated card stats
+				if (this.plugin) {
+					this.plugin.refreshBrowserViews();
+				}
 			}
 		});
 

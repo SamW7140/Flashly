@@ -6,6 +6,7 @@
 import { App, Notice } from 'obsidian';
 import { StorageService } from '../services/storage-service';
 import { FlashcardParser } from '../parser/flashcard-parser';
+import type FlashlyPlugin from '../../main';
 
 export interface ScanStatistics {
   filesScanned: number;
@@ -20,7 +21,8 @@ export class ScanCommand {
   constructor(
     private app: App,
     private storage: StorageService,
-    private parser: FlashcardParser
+    private parser: FlashcardParser,
+    private plugin?: FlashlyPlugin
   ) {}
 
   /**
@@ -110,6 +112,11 @@ export class ScanCommand {
 
       // Save updated storage
       await this.storage.save();
+
+      // Refresh browser views to show updated cards
+      if (this.plugin) {
+        this.plugin.refreshBrowserViews();
+      }
 
       // Show completion notice
       const message = this.formatCompletionMessage(stats);

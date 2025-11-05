@@ -24,7 +24,7 @@ class GenerateQuizModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('flashly-generate-quiz-modal');
 
-		contentEl.createEl('h2', { text: 'Generate Quiz' });
+		contentEl.createEl('h2', { text: 'Generate quiz' });
 
 		// Quiz Title
 		new Setting(contentEl)
@@ -49,7 +49,7 @@ class GenerateQuizModal extends Modal {
 			});
 
 		// Question types
-		contentEl.createEl('h3', { text: 'Question Types' });
+		contentEl.createEl('h3', { text: 'Question types' });
 
 		new Setting(contentEl)
 			.setName('Multiple choice')
@@ -72,7 +72,7 @@ class GenerateQuizModal extends Modal {
 			});
 
 		new Setting(contentEl)
-			.setName('True/False')
+			.setName('True/false')
 			.setDesc('Include true/false questions')
 			.addToggle(toggle => {
 				toggle.setValue(this.config.includeTrueFalse);
@@ -111,7 +111,7 @@ class GenerateQuizModal extends Modal {
 			const controlsDiv = deckContainer.createDiv({ cls: 'quiz-deck-controls' });
 
 			const selectAllBtn = controlsDiv.createEl('button', {
-				text: 'Select All',
+				text: 'Select all',
 				cls: 'quiz-deck-control-btn'
 			});
 			selectAllBtn.addEventListener('click', (e) => {
@@ -125,7 +125,7 @@ class GenerateQuizModal extends Modal {
 			});
 
 			const deselectAllBtn = controlsDiv.createEl('button', {
-				text: 'Deselect All',
+				text: 'Deselect all',
 				cls: 'quiz-deck-control-btn'
 			});
 			deselectAllBtn.addEventListener('click', (e) => {
@@ -175,7 +175,7 @@ class GenerateQuizModal extends Modal {
 
 		// AI Generation
 		if (this.plugin.settings.quiz.enabled) {
-			contentEl.createEl('h3', { text: 'AI Generation' });
+			contentEl.createEl('h3', { text: 'AI generation' });
 
 			new Setting(contentEl)
 				.setName('Use AI to generate questions')
@@ -215,7 +215,7 @@ class GenerateQuizModal extends Modal {
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
 
 		const generateBtn = buttonContainer.createEl('button', {
-			text: 'Generate Quiz',
+			text: 'Generate quiz',
 			cls: 'mod-cta'
 		});
 
@@ -338,7 +338,7 @@ export class GenerateQuizCommand {
 	}
 
 	getName(): string {
-		return 'Generate Quiz';
+		return 'Generate quiz';
 	}
 
 	getCallback(): () => void {
