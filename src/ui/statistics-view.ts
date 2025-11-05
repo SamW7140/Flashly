@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, setIcon } from 'obsidian';
 import type FlashlyPlugin from '../../main';
 import { FlashlyCard } from '../models/card';
+import { Quiz } from '../models/quiz';
 import { State } from 'ts-fsrs';
 
 export const STATISTICS_VIEW_TYPE = 'flashly-statistics-view';
@@ -259,7 +260,7 @@ export class StatisticsView extends ItemView {
 			const barContainer = row.createDiv({ cls: 'stats-distribution-bar-container' });
 			const bar = barContainer.createDiv({ cls: 'stats-distribution-bar' });
 			bar.addClass(`stats-bar-${state}`);
-			bar.style.width = `${percentage}%`;
+			bar.setCssProps({ '--bar-width': `${percentage}%` });
 
 			row.createSpan({ text: `${percentage.toFixed(1)}%`, cls: 'stats-distribution-percentage' });
 		});
@@ -313,7 +314,7 @@ export class StatisticsView extends ItemView {
 
 		if (completedQuizzes.length === 0) {
 			section.createDiv({
-				text: 'No quizzes completed yet. Use "Generate Quiz" to create your first quiz!',
+				text: 'No quizzes completed yet. Use "Generate quiz" to create your first quiz!',
 				cls: 'stats-empty-message'
 			});
 			return;
@@ -406,7 +407,7 @@ export class StatisticsView extends ItemView {
 			const accuracy = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
 			const accuracyBar = typeCard.createDiv({ cls: 'stats-type-accuracy-bar' });
 			const accuracyFill = accuracyBar.createDiv({ cls: 'stats-type-accuracy-fill' });
-			accuracyFill.style.width = `${accuracy}%`;
+			accuracyFill.setCssProps({ '--accuracy-width': `${accuracy}%` });
 
 			if (accuracy >= 80) {
 				accuracyFill.addClass('stats-accuracy-high');
@@ -420,7 +421,7 @@ export class StatisticsView extends ItemView {
 		});
 	}
 
-	private calculateQuizTypeStats(quizzes: any[]): Record<string, { correct: number; total: number }> {
+	private calculateQuizTypeStats(quizzes: Quiz[]): Record<string, { correct: number; total: number }> {
 		const stats: Record<string, { correct: number; total: number }> = {
 			'multiple-choice': { correct: 0, total: 0 },
 			'fill-blank': { correct: 0, total: 0 },
@@ -428,7 +429,7 @@ export class StatisticsView extends ItemView {
 		};
 
 		quizzes.forEach(quiz => {
-			quiz.questions.forEach((q: any) => {
+			quiz.questions.forEach((q) => {
 				if (stats[q.type]) {
 					stats[q.type].total++;
 					if (q.correct) {

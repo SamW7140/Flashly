@@ -9,7 +9,7 @@ export class JSONExporter {
     this.transformer = new JSONTransformer();
   }
 
-  async export(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
+  export(cards: FlashlyCard[], options: ExportOptions): string {
     const jsonData = this.transformer.transform(cards, options);
     
     // Pretty print with 2 spaces indentation
@@ -21,7 +21,7 @@ export class JSONExporter {
   /**
    * Export as compact JSON (no formatting)
    */
-  async exportCompact(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
+  exportCompact(cards: FlashlyCard[], options: ExportOptions): string {
     const jsonData = this.transformer.transform(cards, options);
     return JSON.stringify(jsonData);
   }

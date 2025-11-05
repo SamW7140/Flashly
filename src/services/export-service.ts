@@ -145,7 +145,7 @@ export class ExportService {
 		};
 
 		// Generate CSV content
-		const csvContent = await exporter.export(cards, csvOptions);
+		const csvContent = exporter.export(cards, csvOptions);
 
 		// Determine filename
 		const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
@@ -172,7 +172,7 @@ export class ExportService {
 		options.ankiPlainTextMode = this.settings().export.ankiPlainTextMode;
 
 		// Generate Anki CSV
-		const ankiCSV = await exporter.export(cards, options);
+		const ankiCSV = exporter.export(cards, options);
 
 		// Determine filename
 		const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
@@ -193,7 +193,7 @@ export class ExportService {
 		const exporter = new JSONExporter();
 		
 		// Generate JSON content
-		const jsonContent = await exporter.export(cards, options);
+		const jsonContent = exporter.export(cards, options);
 
 		// Determine filename
 		const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
@@ -214,7 +214,7 @@ export class ExportService {
 		const exporter = new MarkdownExporter();
 		
 		// Export as combined markdown
-		const markdownContent = await exporter.exportCombined(cards, options);
+		const markdownContent = exporter.exportCombined(cards, options);
 
 		// Determine filename
 		const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];
@@ -228,7 +228,7 @@ export class ExportService {
 	/**
 	 * Generate preview of cards to be exported
 	 */
-	async preview(options: ExportOptions, limit: number = 10): Promise<PreviewData> {
+	preview(options: ExportOptions, limit = 10): PreviewData {
 		const cards = this.filterCards(options);
 		const previewCards = cards.slice(0, limit);
 

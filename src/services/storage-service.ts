@@ -4,6 +4,7 @@
  */
 
 import { Plugin } from 'obsidian';
+import { Card as FSRSCard } from 'ts-fsrs';
 import { FlashlyCard } from '../models/card';
 
 interface StorageData {
@@ -20,7 +21,7 @@ interface SerializedCard {
   tags: string[];
   needsFilling: boolean;
   source: { file: string; line: number };
-  fsrsCard: any;
+  fsrsCard: FSRSCard;
   created: string;
   updated: string;
 }
@@ -222,13 +223,13 @@ export class StorageService {
     return { ...this.reviewStats };
   }
 
-  async recordReviewSession(summary: {
+  recordReviewSession(summary: {
     totalReviewed: number;
     reviewedDue: number;
     reviewedNew: number;
     startedAt: Date | null;
     finishedAt: Date | null;
-  }): Promise<void> {
+  }): void {
     const timestamp = summary.finishedAt ?? summary.startedAt ?? new Date();
     const dateString = timestamp.toISOString();
 

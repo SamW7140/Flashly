@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice, TFile, setIcon, MarkdownRenderer, Component } from 'obsidian';
+import { ItemView, WorkspaceLeaf, Notice, TFile, setIcon, MarkdownRenderer, Component, Modal, App } from 'obsidian';
 import { BrowserViewModel, BrowserViewMode, DeckInfo } from '../viewmodels/browser-viewmodel';
 import { FlashlyCard } from '../models/card';
 import type FlashlyPlugin from '../../main';
@@ -33,15 +33,15 @@ export class FlashcardBrowserView extends ItemView {
     return 'layers';
   }
 
-  async onOpen() {
+  async onOpen(): Promise<void> {
     // Load component
     this.component.load();
 
     // Load cards from storage
-    await this.refreshCards();
+    this.refreshCards();
 
     // Initial render
-    this.render();
+    void this.render();
 
     // Register keyboard handlers
     this.registerDomEvent(this.containerEl, 'keydown', (evt: KeyboardEvent) => {
@@ -72,7 +72,7 @@ export class FlashcardBrowserView extends ItemView {
     this.containerEl.setAttribute('tabindex', '-1');
   }
 
-  async onClose() {
+  onClose(): void {
     // Unload component to clean up
     this.component.unload();
   }
@@ -80,17 +80,17 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Refresh cards from storage
    */
-  private async refreshCards() {
+  private refreshCards(): void {
     const cards = this.plugin.storage.getAllCards();
     this.viewModel.setCards(cards);
-    this.render();
+    void this.render();
   }
 
   /**
    * Public method to refresh the view (called externally)
    */
-  async refresh() {
-    await this.refreshCards();
+  refresh(): void {
+    this.refreshCards();
   }
 
   /**
@@ -146,7 +146,7 @@ export class FlashcardBrowserView extends ItemView {
     // Quiz buttons
     const quizBtn = headerActions.createEl('button', {
       cls: 'deck-header-btn',
-      attr: { 'aria-label': 'Generate Quiz' },
+      attr: { 'aria-label': 'Generate quiz' },
     });
     const quizIcon = quizBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(quizIcon, 'help-circle');
@@ -157,7 +157,7 @@ export class FlashcardBrowserView extends ItemView {
 
     const historyBtn = headerActions.createEl('button', {
       cls: 'deck-header-btn',
-      attr: { 'aria-label': 'View Quiz History' },
+      attr: { 'aria-label': 'View quiz history' },
     });
     const historyIcon = historyBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(historyIcon, 'history');
@@ -172,7 +172,7 @@ export class FlashcardBrowserView extends ItemView {
 
     const statsBtn = headerActions.createEl('button', {
       cls: 'deck-header-btn',
-      attr: { 'aria-label': 'View Statistics' },
+      attr: { 'aria-label': 'View statistics' },
     });
     const statsIcon = statsBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(statsIcon, 'bar-chart-2');
@@ -224,7 +224,7 @@ export class FlashcardBrowserView extends ItemView {
 
     searchInput.addEventListener('input', (evt: Event) => {
       this.deckSearchQuery = (evt.target as HTMLInputElement).value;
-      this.render();
+      void this.render();
     });
 
     // Sort dropdown
@@ -249,7 +249,7 @@ export class FlashcardBrowserView extends ItemView {
 
     sortSelect.addEventListener('change', (evt: Event) => {
       this.deckSortBy = (evt.target as HTMLSelectElement).value as DeckSortOption;
-      this.render();
+      void this.render();
     });
   }
 
@@ -369,7 +369,7 @@ export class FlashcardBrowserView extends ItemView {
       // Don't trigger if clicking the button directly
       if (evt.target instanceof Node && studyBtn.contains(evt.target)) return;
       this.viewModel.selectDeck(deck.name);
-      this.render();
+      void this.render();
     });
   }
 
@@ -388,7 +388,7 @@ export class FlashcardBrowserView extends ItemView {
       cls: 'empty-message',
       text: this.deckSearchQuery
         ? 'No decks match your search. Try a different query.'
-        : 'Create flashcards in your notes and run "Scan Vault for Flashcards".',
+        : 'Create flashcards in your notes and run "Scan vault for flashcards".',
     });
   }
 
@@ -429,7 +429,7 @@ export class FlashcardBrowserView extends ItemView {
     });
     backBtn.addEventListener('click', () => {
       this.viewModel.backToDeckList();
-      this.render();
+      void this.render();
     });
 
     // Deck name
@@ -545,7 +545,7 @@ export class FlashcardBrowserView extends ItemView {
     prevBtn.disabled = state.currentCardIndex === 0;
     prevBtn.addEventListener('click', () => {
       this.viewModel.goToPreviousCard();
-      this.render();
+      void this.render();
     });
 
     // Next button
@@ -556,7 +556,7 @@ export class FlashcardBrowserView extends ItemView {
     nextBtn.disabled = state.currentCardIndex >= deckCards.length - 1;
     nextBtn.addEventListener('click', () => {
       this.viewModel.goToNextCard();
-      this.render();
+      void this.render();
     });
   }
 
@@ -618,14 +618,13 @@ export class FlashcardBrowserView extends ItemView {
     }
 
     const leaf = this.app.workspace.getLeaf(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await leaf.openFile(file);
 
     // Navigate to line
     const view = this.app.workspace.getActiveViewOfType(ItemView);
     if (view && 'editor' in view) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const editor = (view as any).editor;
+      // Editor property is not typed in ItemView, using type assertion for compatibility
+      const editor = (view as { editor?: { setCursor: (pos: { line: number; ch: number }) => void; scrollIntoView: (range: { from: { line: number; ch: number }; to: { line: number; ch: number } }) => void } }).editor;
       if (editor) {
         editor.setCursor({ line: card.source.line - 1, ch: 0 });
         editor.scrollIntoView({ from: { line: card.source.line - 1, ch: 0 }, to: { line: card.source.line - 1, ch: 0 } });
@@ -636,15 +635,14 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Delete a card with confirmation
    */
-  private async deleteCard(card: FlashlyCard) {
-    const confirmed = confirm(`Delete flashcard:\n\n${card.front}\n\nThis cannot be undone.`);
-    if (!confirmed) return;
-
-    this.plugin.storage.deleteCard(card.id);
-    await this.plugin.storage.save();
-
-    new Notice('Card deleted');
-    this.refreshCards();
+  private deleteCard(card: FlashlyCard): void {
+    const modal = new ConfirmDeleteCardModal(this.app, card, () => {
+      this.plugin.storage.deleteCard(card.id);
+      void this.plugin.storage.save();
+      new Notice('Card deleted');
+      this.refreshCards();
+    });
+    modal.open();
   }
 
   private async startDeckReview(deckName: string) {
@@ -681,7 +679,7 @@ export class FlashcardBrowserView extends ItemView {
 
     // Perform the flip
     this.viewModel.flipCard();
-    this.render();
+    void this.render();
 
     // Remove will-change after animation completes to free GPU memory
     setTimeout(() => {
@@ -743,7 +741,7 @@ export class FlashcardBrowserView extends ItemView {
         evt.preventDefault();
         if (state.currentCardIndex < deckCards.length - 1) {
           this.viewModel.goToNextCard();
-          this.render();
+          void this.render();
         }
         break;
 
@@ -752,7 +750,7 @@ export class FlashcardBrowserView extends ItemView {
         evt.preventDefault();
         if (state.currentCardIndex > 0) {
           this.viewModel.goToPreviousCard();
-          this.render();
+          void this.render();
         }
         break;
 
@@ -765,7 +763,7 @@ export class FlashcardBrowserView extends ItemView {
       case 'Escape':
         evt.preventDefault();
         this.viewModel.backToDeckList();
-        this.render();
+        void this.render();
         break;
 
       case 'Enter': {
@@ -787,6 +785,53 @@ export class FlashcardBrowserView extends ItemView {
         break;
       }
     }
+  }
+}
+
+/**
+ * Confirmation modal for deleting cards
+ */
+class ConfirmDeleteCardModal extends Modal {
+  card: FlashlyCard;
+  onConfirm: () => void;
+
+  constructor(app: App, card: FlashlyCard, onConfirm: () => void) {
+    super(app);
+    this.card = card;
+    this.onConfirm = onConfirm;
+  }
+
+  onOpen(): void {
+    const { contentEl } = this;
+    contentEl.addClass('flashly-confirm-delete-modal');
+
+    contentEl.createEl('h2', { text: 'Delete flashcard?' });
+    contentEl.createEl('p', {
+      text: `Are you sure you want to delete this flashcard? This cannot be undone.`
+    });
+
+    const cardPreview = contentEl.createDiv({ cls: 'card-preview' });
+    cardPreview.createEl('strong', { text: 'Front: ' });
+    cardPreview.createSpan({ text: this.card.front });
+
+    const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
+
+    const cancelBtn = buttonContainer.createEl('button', { text: 'Cancel' });
+    cancelBtn.addEventListener('click', () => this.close());
+
+    const deleteBtn = buttonContainer.createEl('button', {
+      text: 'Delete',
+      cls: 'mod-warning'
+    });
+    deleteBtn.addEventListener('click', () => {
+      this.onConfirm();
+      this.close();
+    });
+  }
+
+  onClose(): void {
+    const { contentEl } = this;
+    contentEl.empty();
   }
 }
 

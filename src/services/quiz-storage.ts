@@ -4,7 +4,7 @@
  */
 
 import { Plugin } from 'obsidian';
-import { Quiz } from '../models/quiz';
+import { Quiz, QuizQuestion, QuizConfig, QuizGenerationMethod } from '../models/quiz';
 
 interface QuizStorageData {
 	quizzes: Record<string, SerializedQuiz>;
@@ -18,11 +18,11 @@ interface SerializedQuiz {
 	completed?: string;
 	generationMethod: string;
 	sourceCards: string[];
-	questions: any[];
+	questions: QuizQuestion[];
 	score?: number;
 	correctCount?: number;
 	totalQuestions: number;
-	config: any;
+	config: QuizConfig;
 }
 
 export class QuizStorageService {
@@ -35,7 +35,7 @@ export class QuizStorageService {
 	 * Load quizzes from storage
 	 */
 	async load(): Promise<void> {
-		const data = await this.plugin.loadData() as any;
+		const data = await this.plugin.loadData() as Record<string, unknown> | null;
 
 		if (!data || !data.quizStorage) {
 			console.log('Quiz storage: No existing data found, initializing empty storage');
@@ -173,7 +173,7 @@ export class QuizStorageService {
 			title: serialized.title,
 			created: new Date(serialized.created),
 			completed: serialized.completed ? new Date(serialized.completed) : undefined,
-			generationMethod: serialized.generationMethod as any,
+			generationMethod: serialized.generationMethod as QuizGenerationMethod,
 			sourceCards: serialized.sourceCards,
 			questions: serialized.questions,
 			score: serialized.score,

@@ -38,7 +38,7 @@ export class QuizView extends ItemView {
 	async onOpen(): Promise<void> {
 		this.component = new Component();
 		this.component.load();
-		this.render();
+		void this.render();
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
@@ -111,7 +111,7 @@ export class QuizView extends ItemView {
 		setIcon(emptyIcon, 'file-question');
 		emptyState.createEl('h3', { text: 'No quiz loaded', cls: 'quiz-empty-title' });
 		emptyState.createEl('p', {
-			text: 'Use the "Generate Quiz" command to create a new quiz.',
+			text: 'Use the "Generate quiz" command to create a new quiz.',
 			cls: 'quiz-empty-message'
 		});
 	}
@@ -131,7 +131,7 @@ export class QuizView extends ItemView {
 		const progressBar = progress.createDiv({ cls: 'quiz-progress-bar' });
 		const progressFill = progressBar.createDiv({ cls: 'quiz-progress-fill' });
 		const percentage = ((this.currentQuestionIndex + 1) / this.currentQuiz.totalQuestions) * 100;
-		progressFill.style.width = `${percentage}%`;
+		progressFill.setCssProps({ '--progress-width': `${percentage}%` });
 
 		const progressText = progress.createDiv({ cls: 'quiz-progress-text' });
 		progressText.setText(`Question ${this.currentQuestionIndex + 1} of ${this.currentQuiz.totalQuestions}`);
@@ -327,11 +327,11 @@ export class QuizView extends ItemView {
 		const quizStorage = this.plugin.quizStorage;
 		try {
 			await quizStorage.updateQuiz(this.currentQuiz);
-			console.log('Quiz updated successfully:', this.currentQuiz.id, 'Completed:', this.currentQuiz.completed);
-			
+			console.debug('Quiz updated successfully:', this.currentQuiz.id, 'Completed:', this.currentQuiz.completed);
+
 			// Verify it was saved
 			const savedQuiz = quizStorage.getQuiz(this.currentQuiz.id);
-			console.log('Quiz retrieved after save:', savedQuiz?.completed);
+			console.debug('Quiz retrieved after save:', savedQuiz?.completed);
 		} catch (error) {
 			console.error('Failed to update quiz:', error);
 			new Notice('Failed to save quiz results');
@@ -429,7 +429,7 @@ export class QuizView extends ItemView {
 		});
 	}
 
-	private getAnswerDisplay(question: QuizQuestion, answer: any): string {
+	private getAnswerDisplay(question: QuizQuestion, answer: string | number | undefined): string {
 		if (answer === undefined || answer === null) {
 			return '(no answer)';
 		}

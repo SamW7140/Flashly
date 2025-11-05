@@ -9,7 +9,7 @@ export class MarkdownExporter {
     this.transformer = new MarkdownTransformer();
   }
 
-  async export(cards: FlashlyCard[], options: ExportOptions): Promise<Map<string, string>> {
+  export(cards: FlashlyCard[], options: ExportOptions): Map<string, string> {
     const result = this.transformer.transform(cards, options);
     return result.decks;
   }
@@ -17,7 +17,7 @@ export class MarkdownExporter {
   /**
    * Export all cards to a single markdown file
    */
-  async exportCombined(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
+  exportCombined(cards: FlashlyCard[], options: ExportOptions): string {
     return this.transformer.generateCombinedMarkdown(cards, options);
   }
 }
