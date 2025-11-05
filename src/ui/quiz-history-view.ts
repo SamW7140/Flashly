@@ -3,9 +3,9 @@
  * Browse and manage completed quizzes
  */
 
-import { ItemView, WorkspaceLeaf, Modal, Notice, setIcon } from 'obsidian';
+import { App, ItemView, WorkspaceLeaf, Modal, Notice, setIcon } from 'obsidian';
 import type FlashlyPlugin from '../../main';
-import { Quiz } from '../models/quiz';
+import { Quiz, QuizQuestion } from '../models/quiz';
 
 export const QUIZ_HISTORY_VIEW_TYPE = 'flashly-quiz-history-view';
 
@@ -57,10 +57,10 @@ export class QuizHistoryView extends ItemView {
 
 		// Get all quizzes
 		const allQuizzes = this.plugin.quizStorage.getAllQuizzes();
-		console.log('Quiz History - All quizzes:', allQuizzes.length);
-		console.log('Quiz History - Quizzes:', allQuizzes);
+		console.debug('Quiz History - All quizzes:', allQuizzes.length);
+		console.debug('Quiz History - Quizzes:', allQuizzes);
 		const completedQuizzes = allQuizzes.filter(q => q.completed);
-		console.log('Quiz History - Completed quizzes:', completedQuizzes.length);
+		console.debug('Quiz History - Completed quizzes:', completedQuizzes.length);
 
 		if (completedQuizzes.length === 0) {
 			this.renderEmptyState(container);
@@ -440,7 +440,7 @@ export class QuizHistoryView extends ItemView {
 		return md;
 	}
 
-	private formatAnswerForExport(question: any, answer: any): string {
+	private formatAnswerForExport(question: QuizQuestion, answer: string | number | undefined): string {
 		if (answer === undefined || answer === null) {
 			return '(no answer)';
 		}
@@ -487,7 +487,7 @@ class ExportFileModal extends Modal {
 	defaultName: string;
 	onConfirm: (path: string | null) => void;
 
-	constructor(app: any, defaultName: string, onConfirm: (path: string | null) => void) {
+	constructor(app: App, defaultName: string, onConfirm: (path: string | null) => void) {
 		super(app);
 		this.defaultName = defaultName;
 		this.onConfirm = onConfirm;
@@ -550,7 +550,7 @@ class ConfirmDeleteModal extends Modal {
 	quiz: Quiz;
 	onConfirm: () => void;
 
-	constructor(app: any, quiz: Quiz, onConfirm: () => void) {
+	constructor(app: App, quiz: Quiz, onConfirm: () => void) {
 		super(app);
 		this.quiz = quiz;
 		this.onConfirm = onConfirm;

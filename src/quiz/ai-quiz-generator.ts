@@ -4,8 +4,20 @@
  */
 
 import { FlashlyCard } from '../models/card';
-import { QuizQuestion, QuizConfig, AIQuizSettings, AIQuizGenerationResponse } from '../models/quiz';
+import { QuizQuestion, QuizConfig, AIQuizSettings, AIQuizGenerationResponse, QuizQuestionType } from '../models/quiz';
 import { Notice, requestUrl } from 'obsidian';
+
+interface ParsedAIQuestion {
+	type: QuizQuestionType;
+	prompt: string;
+	options?: string[];
+	correctAnswer: string | number;
+	explanation?: string;
+}
+
+interface ParsedAIResponse {
+	questions: ParsedAIQuestion[];
+}
 
 export class AIQuizGenerator {
 	constructor(private settings: AIQuizSettings) {}
@@ -151,11 +163,11 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.choices[0].message.content;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content);
+			const parsed = JSON.parse(content) as ParsedAIResponse;
 
 			// Add IDs to questions
-			const questions: QuizQuestion[] = parsed.questions.map((q: any) => ({
-				id: `q-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+			const questions: QuizQuestion[] = parsed.questions.map((q) => ({
+				id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
 				type: q.type,
 				prompt: q.prompt,
 				options: q.options,
@@ -214,11 +226,11 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.content[0].text;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content);
+			const parsed = JSON.parse(content) as ParsedAIResponse;
 
 			// Add IDs to questions
-			const questions: QuizQuestion[] = parsed.questions.map((q: any) => ({
-				id: `q-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+			const questions: QuizQuestion[] = parsed.questions.map((q) => ({
+				id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
 				type: q.type,
 				prompt: q.prompt,
 				options: q.options,
@@ -252,7 +264,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 
 		try {
 			const url = `${baseUrl}/models/${model}:generateContent?key=${this.settings.gemini.apiKey}`;
-			console.log('Gemini API URL:', url.replace(this.settings.gemini.apiKey, 'API_KEY_HIDDEN'));
+			console.debug('Gemini API URL:', url.replace(this.settings.gemini.apiKey, 'API_KEY_HIDDEN'));
 
 			const response = await requestUrl({
 				url,
@@ -277,7 +289,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 		const data = response.json;
 		
 		// Log the full response for debugging
-		console.log('Full Gemini API response:', JSON.stringify(data, null, 2));
+		console.debug('Full Gemini API response:', JSON.stringify(data, null, 2));
 
 		// Check if response has candidates
 		if (!data.candidates || data.candidates.length === 0) {
@@ -301,7 +313,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 		}
 
 		// Log the raw response for debugging
-		console.log('Raw Gemini response:', content.substring(0, 500) + '...');			// Remove markdown code blocks if present (e.g., ```json ... ```)
+		console.debug('Raw Gemini response:', content.substring(0, 500) + '...');			// Remove markdown code blocks if present (e.g., ```json ... ```)
 			content = content.trim();
 			if (content.startsWith('```')) {
 				// Remove opening ```json or ```
@@ -328,8 +340,8 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			}
 
 			// Add IDs to questions
-			const questions: QuizQuestion[] = parsed.questions.map((q: any) => ({
-				id: `q-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+			const questions: QuizQuestion[] = parsed.questions.map((q) => ({
+				id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
 				type: q.type,
 				prompt: q.prompt,
 				options: q.options,
@@ -404,11 +416,11 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.choices[0].message.content;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content);
+			const parsed = JSON.parse(content) as ParsedAIResponse;
 
 			// Add IDs to questions
-			const questions: QuizQuestion[] = parsed.questions.map((q: any) => ({
-				id: `q-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+			const questions: QuizQuestion[] = parsed.questions.map((q) => ({
+				id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
 				type: q.type,
 				prompt: q.prompt,
 				options: q.options,

@@ -2,7 +2,7 @@
  * Export Modal - UI for configuring and executing exports
  */
 
-import { App, Modal, Setting, Notice } from 'obsidian';
+import { App, Modal, Setting, Notice, ToggleComponent } from 'obsidian';
 import { ExportService } from '../services/export-service';
 import { ExportOptions, ExportFormat } from '../services/export-transformers/base-transformer';
 
@@ -64,7 +64,7 @@ export class ExportModal extends Modal {
 		};
 
 		// Deck checkboxes
-		const toggles: any[] = [];
+		const toggles: ToggleComponent[] = [];
 		decks.forEach(deck => {
 			const setting = new Setting(deckContainer)
 				.setName(deck)

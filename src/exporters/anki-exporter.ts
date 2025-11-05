@@ -19,7 +19,7 @@ export class AnkiExporter {
    * Export as Anki-compatible CSV format
    * This format can be imported directly into Anki via File > Import
    */
-  async export(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
+  export(cards: FlashlyCard[], options: ExportOptions): string {
     const ankiCards = this.transformer.transform(cards, options);
     
     // Generate CSV in Anki import format
@@ -49,7 +49,7 @@ export class AnkiExporter {
   /**
    * Export multiple decks to separate files
    */
-  async exportMultipleDecks(cards: FlashlyCard[], options: ExportOptions): Promise<Map<string, string>> {
+  exportMultipleDecks(cards: FlashlyCard[], options: ExportOptions): Map<string, string> {
     const ankiCards = this.transformer.transform(cards, options);
     
     // Group cards by deck

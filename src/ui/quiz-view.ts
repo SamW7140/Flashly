@@ -38,7 +38,7 @@ export class QuizView extends ItemView {
 	async onOpen(): Promise<void> {
 		this.component = new Component();
 		this.component.load();
-		this.render();
+		void this.render();
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
@@ -327,11 +327,11 @@ export class QuizView extends ItemView {
 		const quizStorage = this.plugin.quizStorage;
 		try {
 			await quizStorage.updateQuiz(this.currentQuiz);
-			console.log('Quiz updated successfully:', this.currentQuiz.id, 'Completed:', this.currentQuiz.completed);
-			
+			console.debug('Quiz updated successfully:', this.currentQuiz.id, 'Completed:', this.currentQuiz.completed);
+
 			// Verify it was saved
 			const savedQuiz = quizStorage.getQuiz(this.currentQuiz.id);
-			console.log('Quiz retrieved after save:', savedQuiz?.completed);
+			console.debug('Quiz retrieved after save:', savedQuiz?.completed);
 		} catch (error) {
 			console.error('Failed to update quiz:', error);
 			new Notice('Failed to save quiz results');
@@ -429,7 +429,7 @@ export class QuizView extends ItemView {
 		});
 	}
 
-	private getAnswerDisplay(question: QuizQuestion, answer: any): string {
+	private getAnswerDisplay(question: QuizQuestion, answer: string | number | undefined): string {
 		if (answer === undefined || answer === null) {
 			return '(no answer)';
 		}

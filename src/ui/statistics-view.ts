@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, setIcon } from 'obsidian';
 import type FlashlyPlugin from '../../main';
 import { FlashlyCard } from '../models/card';
+import { Quiz } from '../models/quiz';
 import { State } from 'ts-fsrs';
 
 export const STATISTICS_VIEW_TYPE = 'flashly-statistics-view';
@@ -420,7 +421,7 @@ export class StatisticsView extends ItemView {
 		});
 	}
 
-	private calculateQuizTypeStats(quizzes: any[]): Record<string, { correct: number; total: number }> {
+	private calculateQuizTypeStats(quizzes: Quiz[]): Record<string, { correct: number; total: number }> {
 		const stats: Record<string, { correct: number; total: number }> = {
 			'multiple-choice': { correct: 0, total: 0 },
 			'fill-blank': { correct: 0, total: 0 },
@@ -428,7 +429,7 @@ export class StatisticsView extends ItemView {
 		};
 
 		quizzes.forEach(quiz => {
-			quiz.questions.forEach((q: any) => {
+			quiz.questions.forEach((q) => {
 				if (stats[q.type]) {
 					stats[q.type].total++;
 					if (q.correct) {

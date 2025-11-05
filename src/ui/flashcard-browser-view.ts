@@ -33,15 +33,15 @@ export class FlashcardBrowserView extends ItemView {
     return 'layers';
   }
 
-  async onOpen() {
+  async onOpen(): Promise<void> {
     // Load component
     this.component.load();
 
     // Load cards from storage
-    await this.refreshCards();
+    this.refreshCards();
 
     // Initial render
-    this.render();
+    void this.render();
 
     // Register keyboard handlers
     this.registerDomEvent(this.containerEl, 'keydown', (evt: KeyboardEvent) => {
@@ -72,7 +72,7 @@ export class FlashcardBrowserView extends ItemView {
     this.containerEl.setAttribute('tabindex', '-1');
   }
 
-  async onClose() {
+  onClose(): void {
     // Unload component to clean up
     this.component.unload();
   }
@@ -80,17 +80,17 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Refresh cards from storage
    */
-  private async refreshCards() {
+  private refreshCards(): void {
     const cards = this.plugin.storage.getAllCards();
     this.viewModel.setCards(cards);
-    this.render();
+    void this.render();
   }
 
   /**
    * Public method to refresh the view (called externally)
    */
-  async refresh() {
-    await this.refreshCards();
+  refresh(): void {
+    this.refreshCards();
   }
 
   /**
@@ -224,7 +224,7 @@ export class FlashcardBrowserView extends ItemView {
 
     searchInput.addEventListener('input', (evt: Event) => {
       this.deckSearchQuery = (evt.target as HTMLInputElement).value;
-      this.render();
+      void this.render();
     });
 
     // Sort dropdown
@@ -249,7 +249,7 @@ export class FlashcardBrowserView extends ItemView {
 
     sortSelect.addEventListener('change', (evt: Event) => {
       this.deckSortBy = (evt.target as HTMLSelectElement).value as DeckSortOption;
-      this.render();
+      void this.render();
     });
   }
 
@@ -369,7 +369,7 @@ export class FlashcardBrowserView extends ItemView {
       // Don't trigger if clicking the button directly
       if (evt.target instanceof Node && studyBtn.contains(evt.target)) return;
       this.viewModel.selectDeck(deck.name);
-      this.render();
+      void this.render();
     });
   }
 
@@ -429,7 +429,7 @@ export class FlashcardBrowserView extends ItemView {
     });
     backBtn.addEventListener('click', () => {
       this.viewModel.backToDeckList();
-      this.render();
+      void this.render();
     });
 
     // Deck name
@@ -545,7 +545,7 @@ export class FlashcardBrowserView extends ItemView {
     prevBtn.disabled = state.currentCardIndex === 0;
     prevBtn.addEventListener('click', () => {
       this.viewModel.goToPreviousCard();
-      this.render();
+      void this.render();
     });
 
     // Next button
@@ -556,7 +556,7 @@ export class FlashcardBrowserView extends ItemView {
     nextBtn.disabled = state.currentCardIndex >= deckCards.length - 1;
     nextBtn.addEventListener('click', () => {
       this.viewModel.goToNextCard();
-      this.render();
+      void this.render();
     });
   }
 
@@ -636,12 +636,12 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Delete a card with confirmation
    */
-  private async deleteCard(card: FlashlyCard) {
+  private deleteCard(card: FlashlyCard): void {
     const confirmed = confirm(`Delete flashcard:\n\n${card.front}\n\nThis cannot be undone.`);
     if (!confirmed) return;
 
     this.plugin.storage.deleteCard(card.id);
-    await this.plugin.storage.save();
+    void this.plugin.storage.save();
 
     new Notice('Card deleted');
     this.refreshCards();
@@ -681,7 +681,7 @@ export class FlashcardBrowserView extends ItemView {
 
     // Perform the flip
     this.viewModel.flipCard();
-    this.render();
+    void this.render();
 
     // Remove will-change after animation completes to free GPU memory
     setTimeout(() => {
@@ -743,7 +743,7 @@ export class FlashcardBrowserView extends ItemView {
         evt.preventDefault();
         if (state.currentCardIndex < deckCards.length - 1) {
           this.viewModel.goToNextCard();
-          this.render();
+          void this.render();
         }
         break;
 
@@ -752,7 +752,7 @@ export class FlashcardBrowserView extends ItemView {
         evt.preventDefault();
         if (state.currentCardIndex > 0) {
           this.viewModel.goToPreviousCard();
-          this.render();
+          void this.render();
         }
         break;
 
@@ -765,7 +765,7 @@ export class FlashcardBrowserView extends ItemView {
       case 'Escape':
         evt.preventDefault();
         this.viewModel.backToDeckList();
-        this.render();
+        void this.render();
         break;
 
       case 'Enter': {

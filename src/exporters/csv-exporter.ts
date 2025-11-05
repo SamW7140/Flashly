@@ -13,13 +13,13 @@ export class CSVExporter {
 	 */
 	async export(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
 		const csvOptions = options as CSVExportOptions;
-		
+
 		let csvContent: string;
 
 		if (options.format === 'csv-quizlet') {
-			csvContent = await this.exportQuizlet(cards, csvOptions);
+			csvContent = this.exportQuizlet(cards, csvOptions);
 		} else {
-			csvContent = await this.exportGeneric(cards, csvOptions);
+			csvContent = this.exportGeneric(cards, csvOptions);
 		}
 
 		return csvContent;
@@ -28,10 +28,10 @@ export class CSVExporter {
 	/**
 	 * Export as generic CSV with all fields
 	 */
-	private async exportGeneric(
+	private exportGeneric(
 		cards: FlashlyCard[],
 		options: CSVExportOptions
-	): Promise<string> {
+	): string {
 		const transformer = new CSVTransformer();
 		const rows = transformer.transform(cards, options);
 
@@ -53,10 +53,10 @@ export class CSVExporter {
 	/**
 	 * Export as Quizlet-compatible CSV (2 columns only)
 	 */
-	private async exportQuizlet(
+	private exportQuizlet(
 		cards: FlashlyCard[],
 		options: CSVExportOptions
-	): Promise<string> {
+	): string {
 		const transformer = new QuizletCSVTransformer();
 		const rows = transformer.transform(cards, options);
 
