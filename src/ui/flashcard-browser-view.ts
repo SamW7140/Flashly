@@ -80,7 +80,6 @@ export class FlashcardBrowserView extends ItemView {
       this.animationTimeoutId = null;
     }
     // Unload component to clean up
-    await Promise.resolve(); // Satisfy async requirement
     this.component.unload();
   }
 
@@ -503,7 +502,8 @@ export class FlashcardBrowserView extends ItemView {
     // Front of card (question)
     const cardFront = cardInner.createDiv({ cls: 'card-face card-front' });
     const frontText = cardFront.createDiv({ cls: 'card-text' });
-    await MarkdownRenderer.renderMarkdown(
+    await MarkdownRenderer.render(
+      this.app,
       card.front,
       frontText,
       card.source.file,
@@ -520,7 +520,8 @@ export class FlashcardBrowserView extends ItemView {
     // Back of card (answer)
     const cardBack = cardInner.createDiv({ cls: 'card-face card-back' });
     const backText = cardBack.createDiv({ cls: 'card-text' });
-    await MarkdownRenderer.renderMarkdown(
+    await MarkdownRenderer.render(
+      this.app,
       card.back,
       backText,
       card.source.file,

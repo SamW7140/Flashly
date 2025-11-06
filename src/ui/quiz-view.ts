@@ -148,7 +148,7 @@ export class QuizView extends ItemView {
 		const promptContainer = questionContainer.createDiv({ cls: 'quiz-question-prompt' });
 		const promptContent = promptContainer.createDiv({ cls: 'quiz-prompt-content' });
 		if (this.component) {
-			await MarkdownRenderer.renderMarkdown(question.prompt, promptContent, '', this.component);
+			await MarkdownRenderer.render(this.app, question.prompt, promptContent, '', this.component);
 		}
 
 		// Answer area
@@ -235,7 +235,7 @@ export class QuizView extends ItemView {
 
 			// Render markdown in options
 			if (this.component) {
-				await MarkdownRenderer.renderMarkdown(option, optionContent, '', this.component);
+				await MarkdownRenderer.render(this.app, option, optionContent, '', this.component);
 			}
 
 			if (question.userAnswer === index) {
@@ -290,7 +290,7 @@ export class QuizView extends ItemView {
 
 			// Render markdown in options
 			if (this.component) {
-				await MarkdownRenderer.renderMarkdown(option, optionContent, '', this.component);
+				await MarkdownRenderer.render(this.app, option, optionContent, '', this.component);
 			}
 
 			const answerValue = option.toLowerCase();

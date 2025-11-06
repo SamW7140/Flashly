@@ -144,8 +144,8 @@ export class ExportService {
 			includeBOM: this.settings().export.csvIncludeBOM
 		};
 
-		// Generate CSV content
-		const csvContent = await exporter.export(cards, csvOptions);
+		// Generate CSV content (no longer async)
+		const csvContent = exporter.export(cards, csvOptions);
 
 		// Determine filename
 		const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0];

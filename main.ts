@@ -251,15 +251,19 @@ export default class FlashlyPlugin extends Plugin {
 	private showTutorial(): void {
 		const modal = new TutorialModal(this.app, {
 			steps: getTutorialSteps(),
-			onComplete: async () => {
-				this.settings.tutorial.completed = true;
-				this.settings.tutorial.completedDate = new Date().toISOString();
-				await this.saveSettings();
-				new Notice('Tutorial completed! Access it anytime from settings.');
+			onComplete: () => {
+				void (async () => {
+					this.settings.tutorial.completed = true;
+					this.settings.tutorial.completedDate = new Date().toISOString();
+					await this.saveSettings();
+					new Notice('Tutorial completed! Access it anytime from settings.');
+				})();
 			},
-			onSkip: async () => {
-				this.settings.tutorial.completed = true;
-				await this.saveSettings();
+			onSkip: () => {
+				void (async () => {
+					this.settings.tutorial.completed = true;
+					await this.saveSettings();
+				})();
 			}
 		});
 		modal.open();

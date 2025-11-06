@@ -66,7 +66,7 @@ export class ExportModal extends Modal {
 		// Deck checkboxes
 		const toggles: ToggleComponent[] = [];
 		decks.forEach(deck => {
-			const _setting = new Setting(deckContainer)
+			new Setting(deckContainer)
 				.setName(deck)
 				.addToggle(toggle => {
 					toggles.push(toggle);

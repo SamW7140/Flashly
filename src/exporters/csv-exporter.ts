@@ -4,14 +4,14 @@
 
 import * as Papa from 'papaparse';
 import { FlashlyCard } from '../models/card';
-import { CSVTransformer, QuizletCSVTransformer, CSVRow } from '../services/export-transformers/csv-transformer';
+import { CSVTransformer, QuizletCSVTransformer } from '../services/export-transformers/csv-transformer';
 import { ExportOptions, CSVExportOptions } from '../services/export-transformers/base-transformer';
 
 export class CSVExporter {
 	/**
 	 * Export cards as CSV
 	 */
-	async export(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
+	export(cards: FlashlyCard[], options: ExportOptions): string {
 		let csvContent: string;
 
 		if (options.format === 'csv-quizlet') {
