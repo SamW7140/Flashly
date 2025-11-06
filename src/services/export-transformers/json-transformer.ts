@@ -1,6 +1,12 @@
 import { FlashlyCard } from '../../models/card';
 import { ExportTransformer, ExportOptions } from './base-transformer';
 
+/**
+ * JSON Export Format v2.0.0
+ * 
+ * Breaking change from v1.0.0:
+ * - Removed deprecated elapsed_days field from fsrsCard (removed in FSRS v6.0.0)
+ */
 export interface JSONExportFormat {
   version: string;
   exportDate: string;
@@ -47,7 +53,7 @@ export class JSONTransformer implements ExportTransformer<JSONExportFormat> {
     }
 
     return {
-      version: '1.0.0',
+      version: '2.0.0',
       exportDate: new Date().toISOString(),
       totalCards: cards.length,
       decks

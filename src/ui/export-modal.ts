@@ -2,7 +2,7 @@
  * Export Modal - UI for configuring and executing exports
  */
 
-import { App, Modal, Setting, Notice, ToggleComponent } from 'obsidian';
+import { App, Modal, Setting, ToggleComponent, Notice } from 'obsidian';
 import { ExportService } from '../services/export-service';
 import { ExportOptions, ExportFormat } from '../services/export-transformers/base-transformer';
 

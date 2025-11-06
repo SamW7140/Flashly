@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice, TFile, setIcon, MarkdownRenderer, Component, Modal, App } from 'obsidian';
+import { ItemView, WorkspaceLeaf, Notice, setIcon, MarkdownRenderer, Component, Modal, App, TFile } from 'obsidian';
 import { BrowserViewModel, BrowserViewMode, DeckInfo } from '../viewmodels/browser-viewmodel';
 import { FlashlyCard } from '../models/card';
 import type FlashlyPlugin from '../../main';
@@ -14,6 +14,7 @@ export class FlashcardBrowserView extends ItemView {
   private deckSortBy: DeckSortOption = 'name-asc';
   private component: Component = new Component();
   private isAnimating = false;
+  private animationTimeoutId: number | null = null;
 
   constructor(leaf: WorkspaceLeaf, plugin: FlashlyPlugin) {
     super(leaf);
@@ -73,6 +74,11 @@ export class FlashcardBrowserView extends ItemView {
   }
 
   async onClose(): Promise<void> {
+    // Clean up animation timeout
+    if (this.animationTimeoutId !== null) {
+      window.clearTimeout(this.animationTimeoutId);
+      this.animationTimeoutId = null;
+    }
     // Unload component to clean up
     await Promise.resolve(); // Satisfy async requirement
     this.component.unload();
@@ -686,10 +692,19 @@ export class FlashcardBrowserView extends ItemView {
     const { showingAnswer } = this.viewModel.getViewState();
     cardInner.toggleClass('flipped', showingAnswer);
 
+    // Clear any existing animation timeout
+    if (this.animationTimeoutId !== null) {
+      window.clearTimeout(this.animationTimeoutId);
+    }
+
     // Remove animation hint once transition completes
-    setTimeout(() => {
-      cardInner.removeClass('animating');
+    this.animationTimeoutId = window.setTimeout(() => {
+      // Check if element still exists before accessing it
+      if (cardInner && cardInner.isConnected) {
+        cardInner.removeClass('animating');
+      }
       this.isAnimating = false;
+      this.animationTimeoutId = null;
     }, 400); // Match CSS transition duration
   }
 

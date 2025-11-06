@@ -23,7 +23,6 @@ export interface CSVRow {
 
 export class CSVTransformer implements ExportTransformer<CSVRow[]> {
 	transform(cards: FlashlyCard[], options: ExportOptions): CSVRow[] {
-		const csvOptions = options as CSVExportOptions;
 		const rows: CSVRow[] = [];
 
 		for (const card of cards) {

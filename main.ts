@@ -123,26 +123,26 @@ export default class FlashlyPlugin extends Plugin {
 		this.addCommand({
 			id: 'open-flashcard-browser',
 			name: 'Open flashcard browser',
-			callback: () => this.activateBrowserView()
+			callback: () => void this.activateBrowserView()
 		});
 
 		// Add command to open statistics view
 		this.addCommand({
 			id: 'open-statistics',
 			name: 'View statistics',
-			callback: () => this.activateStatisticsView()
+			callback: () => void this.activateStatisticsView()
 		});
 
 		// Add command to open quiz history
 		this.addCommand({
 			id: 'open-quiz-history',
 			name: 'View quiz history',
-			callback: () => this.activateQuizHistoryView()
+			callback: () => void this.activateQuizHistoryView()
 		});
 
 		// Add ribbon icon for flashcard browser
 		this.addRibbonIcon('layers', 'Flashcard browser', () => {
-			this.activateBrowserView();
+			void this.activateBrowserView();
 		});
 
 		// Add status bar item
@@ -321,7 +321,7 @@ export default class FlashlyPlugin extends Plugin {
 
 		// Make it clickable to open browser
 		this.statusBarItem.onclick = () => {
-			this.activateBrowserView();
+			void this.activateBrowserView();
 		};
 	}
 }

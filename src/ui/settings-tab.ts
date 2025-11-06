@@ -36,7 +36,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.parser.inline.enabled = value;
 					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide dependent settings
+					void this.display(); // Refresh to show/hide dependent settings
 				}));
 
 		if (this.plugin.settings.parser.inline.enabled) {
@@ -94,7 +94,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.parser.header.enabled = value;
 					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide dependent settings
+					void this.display(); // Refresh to show/hide dependent settings
 				}));
 
 		if (this.plugin.settings.parser.header.enabled) {
@@ -316,7 +316,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.quiz.enabled = value;
 					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide AI settings
+					void this.display(); // Refresh to show/hide AI settings
 				}));
 
 		if (this.plugin.settings.quiz.enabled) {
@@ -332,7 +332,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.quiz.provider = value as AIProvider;
 						await this.plugin.saveSettings();
-						this.display(); // Refresh to show provider-specific settings
+						void this.display(); // Refresh to show provider-specific settings
 					}));
 
 			// OpenAI Settings
@@ -556,7 +556,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				});
 		}			// Advanced AI Settings
 			new Setting(containerEl)
-				.setName('Advanced AI settings')
+				.setName('Advanced')
 				.setHeading();
 
 			new Setting(containerEl)

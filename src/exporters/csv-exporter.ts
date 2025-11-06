@@ -12,14 +12,12 @@ export class CSVExporter {
 	 * Export cards as CSV
 	 */
 	async export(cards: FlashlyCard[], options: ExportOptions): Promise<string> {
-		const csvOptions = options as CSVExportOptions;
-
 		let csvContent: string;
 
 		if (options.format === 'csv-quizlet') {
-			csvContent = this.exportQuizlet(cards, csvOptions);
+			csvContent = this.exportQuizlet(cards, options as CSVExportOptions);
 		} else {
-			csvContent = this.exportGeneric(cards, csvOptions);
+			csvContent = this.exportGeneric(cards, options as CSVExportOptions);
 		}
 
 		return csvContent;

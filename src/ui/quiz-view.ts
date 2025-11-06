@@ -61,7 +61,7 @@ export class QuizView extends ItemView {
 	async loadQuiz(quiz: Quiz): Promise<void> {
 		this.currentQuiz = quiz;
 		this.currentQuestionIndex = 0;
-		await this.render();
+		void this.render();
 	}
 
 	private async render(): Promise<void> {
