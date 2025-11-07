@@ -36,10 +36,12 @@ export class StatisticsView extends ItemView {
 		return 'bar-chart';
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onOpen(): Promise<void> {
 		this.queueRender();
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onClose(): Promise<void> {
 		this.containerEl.empty();
 	}

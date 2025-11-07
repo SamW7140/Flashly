@@ -41,6 +41,7 @@ export class QuizView extends ItemView {
 		return 'help-circle';
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onOpen(): Promise<void> {
 		this.component = new Component();
 		this.component.load();
@@ -48,6 +49,7 @@ export class QuizView extends ItemView {
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onClose(): Promise<void> {
 		if (this.debounceTimer !== null) {
 			window.clearTimeout(this.debounceTimer);
