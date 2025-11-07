@@ -9,6 +9,16 @@ import { Quiz, QuizQuestion } from '../models/quiz';
 
 export const QUIZ_HISTORY_VIEW_TYPE = 'flashly-quiz-history-view';
 
+interface ObsidianApp extends App {
+	commands: {
+		executeCommandById(commandId: string): void;
+	};
+}
+
+interface QuizView {
+	loadQuiz(quiz: Quiz): void;
+}
+
 export class QuizHistoryView extends ItemView {
 	plugin: FlashlyPlugin;
 	private sortBy: 'date' | 'score' | 'title' = 'date';
@@ -108,7 +118,7 @@ export class QuizHistoryView extends ItemView {
 
 		createBtn.addEventListener('click', () => {
 			// Trigger generate quiz command
-			(this.app as any).commands.executeCommandById('flashly:generate-quiz');
+			(this.app as ObsidianApp).commands.executeCommandById('flashly:generate-quiz');
 		});
 	}
 
@@ -327,7 +337,7 @@ export class QuizHistoryView extends ItemView {
 
 		const view = leaf.view;
 		if (view && 'loadQuiz' in view) {
-			await (view as any).loadQuiz(quiz);
+			(view as unknown as QuizView).loadQuiz(quiz);
 		}
 	}
 
@@ -357,7 +367,7 @@ export class QuizHistoryView extends ItemView {
 
 		const view = leaf.view;
 		if (view && 'loadQuiz' in view) {
-			await (view as any).loadQuiz(newQuiz);
+			(view as unknown as QuizView).loadQuiz(newQuiz);
 		}
 
 		new Notice('Quiz ready! Good luck!');

@@ -2,7 +2,7 @@
  * Export Service - Core orchestration for export functionality
  */
 
-import { App, Notice, TFile } from 'obsidian';
+import { App, Notice } from 'obsidian';
 import { StorageService } from './storage-service';
 import { FlashlyCard } from '../models/card';
 import { FlashlySettings } from '../settings';
@@ -119,7 +119,7 @@ export class ExportService {
 			cards = cards.filter(card => {
 				const cardDate = new Date(card.created);
 				return cardDate >= options.dateRange!.start && 
-				       cardDate <= options.dateRange!.end;
+					cardDate <= options.dateRange!.end;
 			});
 		}
 

@@ -5,7 +5,7 @@
 
 import { FlashlyCard } from '../models/card';
 import { QuizQuestion, QuizConfig, AIQuizSettings, AIQuizGenerationResponse, QuizQuestionType } from '../models/quiz';
-import { Notice, requestUrl } from 'obsidian';
+import { requestUrl } from 'obsidian';
 
 interface ParsedAIQuestion {
 	type: QuizQuestionType;

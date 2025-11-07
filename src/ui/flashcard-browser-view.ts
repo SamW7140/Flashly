@@ -7,6 +7,12 @@ export const FLASHCARD_BROWSER_VIEW_TYPE = 'flashcard-browser-view';
 
 type DeckSortOption = 'name-asc' | 'name-desc' | 'cards-desc' | 'due-desc' | 'studied-desc';
 
+interface ObsidianApp extends App {
+  commands: {
+    executeCommandById(commandId: string): void;
+  };
+}
+
 export class FlashcardBrowserView extends ItemView {
   private viewModel: BrowserViewModel;
   private plugin: FlashlyPlugin;
@@ -178,7 +184,7 @@ export class FlashcardBrowserView extends ItemView {
     setIcon(quizIcon, 'help-circle');
     quizBtn.createSpan({ cls: 'deck-btn-text', text: 'Generate quiz' });
     quizBtn.addEventListener('click', () => {
-      (this.app as any).commands.executeCommandById('flashly:generate-quiz');
+      (this.app as ObsidianApp).commands.executeCommandById('flashly:generate-quiz');
     });
 
     const historyBtn = headerActions.createEl('button', {
@@ -220,7 +226,7 @@ export class FlashcardBrowserView extends ItemView {
     setIcon(scanIcon, 'search');
     scanBtn.createSpan({ cls: 'deck-btn-text', text: 'Scan vault' });
     scanBtn.addEventListener('click', () => {
-      (this.app as any).commands.executeCommandById('flashly:scan-vault');
+      (this.app as ObsidianApp).commands.executeCommandById('flashly:scan-vault');
       new Notice('Scanning vault for flashcards...');
     });
 
@@ -448,7 +454,7 @@ export class FlashcardBrowserView extends ItemView {
         text: 'Scan vault for flashcards'
       });
       scanBtn.addEventListener('click', () => {
-        (this.app as any).commands.executeCommandById('flashly:scan-vault');
+        (this.app as ObsidianApp).commands.executeCommandById('flashly:scan-vault');
       });
     }
   }
