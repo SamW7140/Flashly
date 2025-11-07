@@ -223,8 +223,8 @@ class GenerateQuizModal extends Modal {
 			cls: 'mod-cta'
 		});
 
-		generateBtn.addEventListener('click', async () => {
-			await this.generateQuiz();
+		generateBtn.addEventListener('click', () => {
+			void this.generateQuiz();
 		});
 
 		const cancelBtn = buttonContainer.createEl('button', {

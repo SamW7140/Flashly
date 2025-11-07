@@ -194,12 +194,14 @@ export class FlashcardBrowserView extends ItemView {
     const historyIcon = historyBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(historyIcon, 'history');
     historyBtn.createSpan({ cls: 'deck-btn-text', text: 'Quiz history' });
-    historyBtn.addEventListener('click', async () => {
-      const leaf = this.app.workspace.getLeaf('tab');
-      await leaf.setViewState({
-        type: 'flashly-quiz-history-view',
-        active: true
-      });
+    historyBtn.addEventListener('click', () => {
+      void (async () => {
+        const leaf = this.app.workspace.getLeaf('tab');
+        await leaf.setViewState({
+          type: 'flashly-quiz-history-view',
+          active: true
+        });
+      })();
     });
 
     const statsBtn = headerActions.createEl('button', {
@@ -209,12 +211,14 @@ export class FlashcardBrowserView extends ItemView {
     const statsIcon = statsBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(statsIcon, 'bar-chart-2');
     statsBtn.createSpan({ cls: 'deck-btn-text', text: 'Statistics' });
-    statsBtn.addEventListener('click', async () => {
-      const leaf = this.app.workspace.getLeaf('tab');
-      await leaf.setViewState({
-        type: 'flashly-statistics-view',
-        active: true
-      });
+    statsBtn.addEventListener('click', () => {
+      void (async () => {
+        const leaf = this.app.workspace.getLeaf('tab');
+        await leaf.setViewState({
+          type: 'flashly-statistics-view',
+          active: true
+        });
+      })();
     });
 
     // Scan button
@@ -414,10 +418,10 @@ export class FlashcardBrowserView extends ItemView {
       cls: 'deck-study-btn',
             text: 'Study deck',
     });
-    studyBtn.addEventListener('click', async (evt) => {
+    studyBtn.addEventListener('click', (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
-      await this.startDeckReview(deck.name);
+      void this.startDeckReview(deck.name);
     });
 
     // Make entire card clickable
