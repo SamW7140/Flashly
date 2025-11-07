@@ -15,6 +15,8 @@ export class FlashcardBrowserView extends ItemView {
   private component: Component = new Component();
   private isAnimating = false;
   private animationTimeoutId: number | null = null;
+  private searchDebounceTimeout: number | null = null;
+  private shouldFocusSearch = false;
 
   constructor(leaf: WorkspaceLeaf, plugin: FlashlyPlugin) {
     super(leaf);
@@ -79,6 +81,11 @@ export class FlashcardBrowserView extends ItemView {
       window.clearTimeout(this.animationTimeoutId);
       this.animationTimeoutId = null;
     }
+    // Clean up search debounce timeout
+    if (this.searchDebounceTimeout !== null) {
+      window.clearTimeout(this.searchDebounceTimeout);
+      this.searchDebounceTimeout = null;
+    }
     // Unload component to clean up
     this.component.unload();
   }
@@ -111,6 +118,17 @@ export class FlashcardBrowserView extends ItemView {
 
     if (state.mode === BrowserViewMode.DECK_LIST) {
       this.renderDeckListView(container);
+      
+      // Restore focus to search input if needed
+      if (this.shouldFocusSearch) {
+        this.shouldFocusSearch = false;
+        const searchInput = container.querySelector('.deck-search-input') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+          // Restore cursor position to end
+          searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+        }
+      }
     } else {
       await this.renderCardView(container);
     }
@@ -230,7 +248,18 @@ export class FlashcardBrowserView extends ItemView {
 
     searchInput.addEventListener('input', (evt: Event) => {
       this.deckSearchQuery = (evt.target as HTMLInputElement).value;
-      void this.render();
+      this.shouldFocusSearch = true;
+      
+      // Clear existing timeout
+      if (this.searchDebounceTimeout !== null) {
+        window.clearTimeout(this.searchDebounceTimeout);
+      }
+      
+      // Debounce render to avoid losing focus while typing
+      this.searchDebounceTimeout = window.setTimeout(() => {
+        void this.render();
+        this.searchDebounceTimeout = null;
+      }, 300); // Wait 300ms after last keystroke
     });
 
     // Sort dropdown
@@ -310,7 +339,7 @@ export class FlashcardBrowserView extends ItemView {
     const grid = container.createDiv({ cls: 'deck-grid' });
 
     if (sortedDecks.length === 0) {
-      this.renderDeckListEmptyState(grid);
+      this.renderDeckListEmptyState(grid, deckList.length === 0);
       return;
     }
 
@@ -382,10 +411,10 @@ export class FlashcardBrowserView extends ItemView {
   /**
    * Render empty state for deck list
    */
-  private renderDeckListEmptyState(container: HTMLElement) {
+  private renderDeckListEmptyState(container: HTMLElement, isActuallyEmpty: boolean) {
     const emptyState = container.createDiv({ cls: 'empty-state' });
     const emptyIcon = emptyState.createEl('div', { cls: 'empty-icon' });
-    setIcon(emptyIcon, 'inbox');
+    setIcon(emptyIcon, this.deckSearchQuery ? 'search' : 'inbox');
     emptyState.createEl('div', {
       cls: 'empty-title',
       text: 'No decks found',
@@ -396,6 +425,17 @@ export class FlashcardBrowserView extends ItemView {
         ? 'No decks match your search. Try a different query.'
         : 'Create flashcards in your notes and run "Scan vault for flashcards".',
     });
+    
+    // If no decks at all (not just filtered), show scan button
+    if (isActuallyEmpty) {
+      const scanBtn = emptyState.createEl('button', {
+        cls: 'mod-cta',
+        text: 'Scan vault for flashcards'
+      });
+      scanBtn.addEventListener('click', () => {
+        (this.app as any).commands.executeCommandById('flashly:scan-vault');
+      });
+    }
   }
 
   // ====== CARD VIEW ======
