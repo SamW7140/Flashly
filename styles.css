@@ -805,6 +805,11 @@
   color: var(--text-muted);
 }
 
+/* Override height for deck list empty state to prevent blocking interactions */
+.deck-list-empty-state {
+  height: auto;
+}
+
 .empty-icon {
   font-size: 4em;
   margin-bottom: 16px;
