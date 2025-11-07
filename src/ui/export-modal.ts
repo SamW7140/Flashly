@@ -134,7 +134,7 @@ export class ExportModal extends Modal {
 		cancelBtn.onclick = () => this.close();
 	}
 
-	async preview() {
+	preview() {
 		const options: ExportOptions = {
 			format: this.format,
 			selectedDecks: this.selectedDecks,
