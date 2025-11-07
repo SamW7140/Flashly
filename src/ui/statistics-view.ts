@@ -36,10 +36,12 @@ export class StatisticsView extends ItemView {
 		return 'bar-chart';
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onOpen(): Promise<void> {
 		this.queueRender();
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onClose(): Promise<void> {
 		this.containerEl.empty();
 	}
@@ -138,11 +140,13 @@ export class StatisticsView extends ItemView {
 			// Find the first card in this deck to get the source file
 			const firstCard = cards.find(c => c.deck === deck.name);
 			if (firstCard) {
-				deckItem.addEventListener('click', async () => {
-					const file = this.app.vault.getAbstractFileByPath(firstCard.source.file);
-					if (file) {
-						await this.app.workspace.openLinkText(firstCard.source.file, '', false);
-					}
+				deckItem.addEventListener('click', () => {
+					void (async () => {
+						const file = this.app.vault.getAbstractFileByPath(firstCard.source.file);
+						if (file) {
+							await this.app.workspace.openLinkText(firstCard.source.file, '', false);
+						}
+					})();
 				});
 			}
 

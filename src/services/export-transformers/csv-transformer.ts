@@ -3,7 +3,7 @@
  */
 
 import { FlashlyCard } from '../../models/card';
-import { ExportTransformer, ExportOptions, CSVExportOptions } from './base-transformer';
+import { ExportTransformer, ExportOptions } from './base-transformer';
 import { getCardStateLabel } from '../../models/card';
 
 export interface CSVRow {

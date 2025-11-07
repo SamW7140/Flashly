@@ -7,6 +7,12 @@ export const FLASHCARD_BROWSER_VIEW_TYPE = 'flashcard-browser-view';
 
 type DeckSortOption = 'name-asc' | 'name-desc' | 'cards-desc' | 'due-desc' | 'studied-desc';
 
+interface ObsidianApp extends App {
+  commands: {
+    executeCommandById(commandId: string): void;
+  };
+}
+
 export class FlashcardBrowserView extends ItemView {
   private viewModel: BrowserViewModel;
   private plugin: FlashlyPlugin;
@@ -37,6 +43,7 @@ export class FlashcardBrowserView extends ItemView {
     return 'layers';
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async onOpen(): Promise<void> {
     // Load component
     this.component.load();
@@ -76,6 +83,7 @@ export class FlashcardBrowserView extends ItemView {
     this.containerEl.setAttribute('tabindex', '-1');
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async onClose(): Promise<void> {
     // Clean up animation timeout
     if (this.animationTimeoutId !== null) {
@@ -178,7 +186,7 @@ export class FlashcardBrowserView extends ItemView {
     setIcon(quizIcon, 'help-circle');
     quizBtn.createSpan({ cls: 'deck-btn-text', text: 'Generate quiz' });
     quizBtn.addEventListener('click', () => {
-      (this.app as any).commands.executeCommandById('flashly:generate-quiz');
+      (this.app as ObsidianApp).commands.executeCommandById('flashly:generate-quiz');
     });
 
     const historyBtn = headerActions.createEl('button', {
@@ -188,12 +196,14 @@ export class FlashcardBrowserView extends ItemView {
     const historyIcon = historyBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(historyIcon, 'history');
     historyBtn.createSpan({ cls: 'deck-btn-text', text: 'Quiz history' });
-    historyBtn.addEventListener('click', async () => {
-      const leaf = this.app.workspace.getLeaf('tab');
-      await leaf.setViewState({
-        type: 'flashly-quiz-history-view',
-        active: true
-      });
+    historyBtn.addEventListener('click', () => {
+      void (async () => {
+        const leaf = this.app.workspace.getLeaf('tab');
+        await leaf.setViewState({
+          type: 'flashly-quiz-history-view',
+          active: true
+        });
+      })();
     });
 
     const statsBtn = headerActions.createEl('button', {
@@ -203,12 +213,14 @@ export class FlashcardBrowserView extends ItemView {
     const statsIcon = statsBtn.createSpan({ cls: 'deck-btn-icon' });
     setIcon(statsIcon, 'bar-chart-2');
     statsBtn.createSpan({ cls: 'deck-btn-text', text: 'Statistics' });
-    statsBtn.addEventListener('click', async () => {
-      const leaf = this.app.workspace.getLeaf('tab');
-      await leaf.setViewState({
-        type: 'flashly-statistics-view',
-        active: true
-      });
+    statsBtn.addEventListener('click', () => {
+      void (async () => {
+        const leaf = this.app.workspace.getLeaf('tab');
+        await leaf.setViewState({
+          type: 'flashly-statistics-view',
+          active: true
+        });
+      })();
     });
 
     // Scan button
@@ -220,7 +232,7 @@ export class FlashcardBrowserView extends ItemView {
     setIcon(scanIcon, 'search');
     scanBtn.createSpan({ cls: 'deck-btn-text', text: 'Scan vault' });
     scanBtn.addEventListener('click', () => {
-      (this.app as any).commands.executeCommandById('flashly:scan-vault');
+      (this.app as ObsidianApp).commands.executeCommandById('flashly:scan-vault');
       new Notice('Scanning vault for flashcards...');
     });
 
@@ -408,10 +420,10 @@ export class FlashcardBrowserView extends ItemView {
       cls: 'deck-study-btn',
             text: 'Study deck',
     });
-    studyBtn.addEventListener('click', async (evt) => {
+    studyBtn.addEventListener('click', (evt) => {
       evt.preventDefault();
       evt.stopPropagation();
-      await this.startDeckReview(deck.name);
+      void this.startDeckReview(deck.name);
     });
 
     // Make entire card clickable
@@ -448,7 +460,7 @@ export class FlashcardBrowserView extends ItemView {
         text: 'Scan vault for flashcards'
       });
       scanBtn.addEventListener('click', () => {
-        (this.app as any).commands.executeCommandById('flashly:scan-vault');
+        (this.app as ObsidianApp).commands.executeCommandById('flashly:scan-vault');
       });
     }
   }
@@ -731,7 +743,7 @@ export class FlashcardBrowserView extends ItemView {
       return; // Prevent multiple simultaneous animations
     }
 
-    const cardInner = this.containerEl.querySelector('.card-inner') as HTMLElement | null;
+    const cardInner = this.containerEl.querySelector('.card-inner') ;
 
     if (!cardInner) {
       // Fallback to full render if the card element is missing

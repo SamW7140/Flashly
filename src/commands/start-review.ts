@@ -69,9 +69,9 @@ export class StartReviewCommand {
 
 		const modal = new ReviewModal(this.app, viewModel, {
 			enableKeyboardShortcuts: settings.review.enableKeyboardShortcuts,
-			onComplete: async (summary) => {
-				await this.storage.recordReviewSession(summary);
-				await this.storage.save();
+			onComplete: (summary) => {
+				this.storage.recordReviewSession(summary);
+				void this.storage.save();
 				// Refresh browser views to show updated card stats
 				if (this.plugin) {
 					this.plugin.refreshBrowserViews();

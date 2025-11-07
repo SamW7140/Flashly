@@ -5,7 +5,7 @@
 
 import { FlashlyCard } from '../models/card';
 import { QuizQuestion, QuizConfig, AIQuizSettings, AIQuizGenerationResponse, QuizQuestionType } from '../models/quiz';
-import { Notice, requestUrl } from 'obsidian';
+import { requestUrl } from 'obsidian';
 
 interface ParsedAIQuestion {
 	type: QuizQuestionType;
@@ -163,7 +163,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.choices[0].message.content;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content) as ParsedAIResponse;
+			const parsed = JSON.parse(content as string) as ParsedAIResponse;
 
 			// Add IDs to questions
 			const questions: QuizQuestion[] = parsed.questions.map((q: ParsedAIQuestion) => ({
@@ -226,7 +226,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.content[0].text;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content) as ParsedAIResponse;
+			const parsed = JSON.parse(content as string) as ParsedAIResponse;
 
 			// Add IDs to questions
 			const questions: QuizQuestion[] = parsed.questions.map((q: ParsedAIQuestion) => ({
@@ -326,7 +326,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			// Try to parse JSON response
 			let parsed;
 			try {
-				parsed = JSON.parse(content);
+				parsed = JSON.parse(content as string);
 			} catch (parseError) {
 				console.error('JSON parse error:', parseError);
 				console.error('Failed content:', content);
@@ -416,7 +416,7 @@ Respond ONLY with valid JSON in the format above. Do not include any other text.
 			const content = data.choices[0].message.content;
 
 			// Parse JSON response
-			const parsed = JSON.parse(content) as ParsedAIResponse;
+			const parsed = JSON.parse(content as string) as ParsedAIResponse;
 
 			// Add IDs to questions
 			const questions: QuizQuestion[] = parsed.questions.map((q: ParsedAIQuestion) => ({

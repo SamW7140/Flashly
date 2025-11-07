@@ -3,16 +3,22 @@
  * Interactive quiz interface for taking quizzes
  */
 
-import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, Component, Notice } from 'obsidian';
+import { ItemView, WorkspaceLeaf, setIcon, MarkdownRenderer, Component, Notice, App } from 'obsidian';
 import type FlashlyPlugin from '../../main';
 import { Quiz, QuizQuestion, checkAnswer, calculateQuizScore } from '../models/quiz';
 
 export const QUIZ_VIEW_TYPE = 'flashly-quiz-view';
 
+interface ObsidianApp extends App {
+	commands: {
+		executeCommandById(commandId: string): void;
+	};
+}
+
 export class QuizView extends ItemView {
 	plugin: FlashlyPlugin;
 	currentQuiz: Quiz | null = null;
-	currentQuestionIndex: number = 0;
+	currentQuestionIndex = 0;
 	private keydownHandler: (evt: KeyboardEvent) => void;
 	private component: Component | null = null;
 	private debounceTimer: number | null = null;
@@ -35,6 +41,7 @@ export class QuizView extends ItemView {
 		return 'help-circle';
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onOpen(): Promise<void> {
 		this.component = new Component();
 		this.component.load();
@@ -42,6 +49,7 @@ export class QuizView extends ItemView {
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
 	async onClose(): Promise<void> {
 		if (this.debounceTimer !== null) {
 			window.clearTimeout(this.debounceTimer);
@@ -58,7 +66,7 @@ export class QuizView extends ItemView {
 	/**
 	 * Load and start a quiz
 	 */
-	async loadQuiz(quiz: Quiz): Promise<void> {
+	loadQuiz(quiz: Quiz): void {
 		this.currentQuiz = quiz;
 		this.currentQuestionIndex = 0;
 		void this.render();
@@ -417,7 +425,7 @@ export class QuizView extends ItemView {
 		newQuizBtn.prepend(newQuizIcon);
 		newQuizBtn.addEventListener('click', () => {
 			// Trigger the generate-quiz command
-			(this.app as any).commands.executeCommandById('flashly:generate-quiz');
+			(this.app as ObsidianApp).commands.executeCommandById('flashly:generate-quiz');
 		});
 
 		const closeBtn = actions.createEl('button', {

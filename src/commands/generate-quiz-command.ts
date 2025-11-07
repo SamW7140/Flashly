@@ -5,9 +5,13 @@
 
 import { App, Modal, Notice, Setting } from 'obsidian';
 import type FlashlyPlugin from '../../main';
-import { QuizConfig, DEFAULT_QUIZ_CONFIG, createQuiz } from '../models/quiz';
+import { QuizConfig, DEFAULT_QUIZ_CONFIG, createQuiz, Quiz } from '../models/quiz';
 import { TraditionalQuizGenerator } from '../quiz/traditional-quiz-generator';
 import { AIQuizGenerator } from '../quiz/ai-quiz-generator';
+
+interface QuizView {
+	loadQuiz(quiz: Quiz): void;
+}
 
 class GenerateQuizModal extends Modal {
 	plugin: FlashlyPlugin;
@@ -82,7 +86,7 @@ class GenerateQuizModal extends Modal {
 			});
 
 		// Deck filter
-		const _deckFilterSetting = new Setting(contentEl)
+		new Setting(contentEl)
 			.setName('Filter by decks')
 			.setDesc('Select which decks to include (leave all unchecked for all decks)');
 
@@ -111,7 +115,7 @@ class GenerateQuizModal extends Modal {
 			const controlsDiv = deckContainer.createDiv({ cls: 'quiz-deck-controls' });
 
 			const selectAllBtn = controlsDiv.createEl('button', {
-				text: 'Select all',
+				text: 'Select All',
 				cls: 'quiz-deck-control-btn'
 			});
 			selectAllBtn.addEventListener('click', (e) => {
@@ -125,7 +129,7 @@ class GenerateQuizModal extends Modal {
 			});
 
 			const deselectAllBtn = controlsDiv.createEl('button', {
-				text: 'Deselect all',
+				text: 'Deselect All',
 				cls: 'quiz-deck-control-btn'
 			});
 			deselectAllBtn.addEventListener('click', (e) => {
@@ -157,7 +161,7 @@ class GenerateQuizModal extends Modal {
 
 				// Count cards in this deck
 				const cardCount = allCards.filter(c => c.deck === deck).length;
-				const _countSpan = deckItem.createSpan({
+				deckItem.createSpan({
 					text: ` (${cardCount} card${cardCount !== 1 ? 's' : ''})`,
 					cls: 'quiz-deck-count'
 				});
@@ -219,8 +223,8 @@ class GenerateQuizModal extends Modal {
 			cls: 'mod-cta'
 		});
 
-		generateBtn.addEventListener('click', async () => {
-			await this.generateQuiz();
+		generateBtn.addEventListener('click', () => {
+			void this.generateQuiz();
 		});
 
 		const cancelBtn = buttonContainer.createEl('button', {
@@ -311,7 +315,7 @@ class GenerateQuizModal extends Modal {
 			// Load the quiz into the view
 			const view = leaf.view;
 			if (view && 'loadQuiz' in view) {
-				await (view as any).loadQuiz(quiz);
+				(view as unknown as QuizView).loadQuiz(quiz);
 			}
 
 			this.close();

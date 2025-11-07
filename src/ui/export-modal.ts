@@ -50,17 +50,17 @@ export class ExportModal extends Modal {
 		
 		// Select All / Deselect All buttons
 		const buttonContainer = deckContainer.createDiv({ cls: 'export-button-group' });
-		const selectAllBtn = buttonContainer.createEl('button', { text: 'Select all' });
-		const deselectAllBtn = buttonContainer.createEl('button', { text: 'Deselect all' });
+		const selectAllBtn = buttonContainer.createEl('button', { text: 'Select All' });
+		const deselectAllBtn = buttonContainer.createEl('button', { text: 'Deselect All' });
 		
 		selectAllBtn.onclick = () => {
 			this.selectedDecks = [...decks];
-			toggles.forEach(t => t.setValue(true));
+			toggles.forEach(t => { void t.setValue(true); });
 		};
 		
 		deselectAllBtn.onclick = () => {
 			this.selectedDecks = [];
-			toggles.forEach(t => t.setValue(false));
+			toggles.forEach(t => { void t.setValue(false); });
 		};
 
 		// Deck checkboxes
@@ -127,14 +127,14 @@ export class ExportModal extends Modal {
 			text: 'Export',
 			cls: 'mod-cta'
 		});
-		exportBtn.onclick = () => this.export();
+		exportBtn.onclick = () => void this.export();
 		
 		// Cancel button
 		const cancelBtn = buttonRow.createEl('button', { text: 'Cancel' });
 		cancelBtn.onclick = () => this.close();
 	}
 
-	async preview() {
+	preview() {
 		const options: ExportOptions = {
 			format: this.format,
 			selectedDecks: this.selectedDecks,
@@ -143,7 +143,7 @@ export class ExportModal extends Modal {
 			includeMedia: this.includeMedia
 		};
 
-		const preview = await this.exportService.preview(options, 10);
+		const preview = this.exportService.preview(options, 10);
 		
 		new Notice(
 			`Preview: ${preview.previewCount} of ${preview.totalCount} cards will be exported`

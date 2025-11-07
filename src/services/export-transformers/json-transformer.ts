@@ -118,7 +118,7 @@ export class JSONTransformer implements ExportTransformer<JSONExportFormat> {
     const data: JSONExportFormat = JSON.parse(json);
     const cards: Partial<FlashlyCard>[] = [];
 
-    for (const [deckName, deckCards] of Object.entries(data.decks)) {
+    for (const deckCards of Object.values(data.decks)) {
       for (const jsonCard of deckCards) {
         const card: Partial<FlashlyCard> = {
           front: jsonCard.front,
