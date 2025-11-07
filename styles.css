@@ -245,6 +245,13 @@
   min-height: 0;
 }
 
+/* Deck list empty state - span all columns and use auto height */
+.deck-list-empty-state {
+  grid-column: 1 / -1;
+  height: auto;
+  min-height: 300px;
+}
+
 /* Deck Card */
 .deck-card {
   background: var(--background-primary);
