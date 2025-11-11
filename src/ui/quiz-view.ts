@@ -47,7 +47,7 @@ export class QuizView extends ItemView {
 		return 'help-circle';
 	}
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
 	async onOpen(): Promise<void> {
 		this.component = new Component();
 		this.component.load();
@@ -55,7 +55,7 @@ export class QuizView extends ItemView {
 		document.addEventListener('keydown', this.keydownHandler);
 	}
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
 	async onClose(): Promise<void> {
 		if (this.debounceTimer !== null) {
 			window.clearTimeout(this.debounceTimer);
@@ -158,7 +158,7 @@ export class QuizView extends ItemView {
 		setIcon(emptyIcon, 'file-question');
 		emptyState.createEl('h3', { text: 'No quiz loaded', cls: 'quiz-empty-title' });
 		emptyState.createEl('p', {
-			text: 'Use the "Generate quiz" command to create a new quiz.',
+			text: 'Use the "generate quiz" command to create a new quiz.',
 			cls: 'quiz-empty-message'
 		});
 	}
@@ -262,7 +262,7 @@ export class QuizView extends ItemView {
 		} else {
 			// Normal mode navigation
 			if (this.currentQuestionIndex > 0) {
-				const prevBtn = nav.createEl('button', { text: '← Previous', cls: 'quiz-nav-btn' });
+				const prevBtn = nav.createEl('button', { text: '← previous', cls: 'quiz-nav-btn' });
 				prevBtn.addEventListener('click', () => {
 					this.currentQuestionIndex--;
 					void this.render();
@@ -496,14 +496,14 @@ export class QuizView extends ItemView {
 			// Correct answer feedback
 			feedbackCard.addClass('quiz-learn-feedback-correct');
 			feedbackCard.createEl('h3', {
-				text: '✓ Correct!',
+				text: '✓ correct!',
 				cls: 'quiz-learn-feedback-title'
 			});
 		} else {
 			// Incorrect answer feedback
 			feedbackCard.addClass('quiz-learn-feedback-incorrect');
 			feedbackCard.createEl('h3', {
-				text: '✗ Incorrect',
+				text: '✗ incorrect',
 				cls: 'quiz-learn-feedback-title'
 			});
 
@@ -526,7 +526,7 @@ export class QuizView extends ItemView {
 
 			// Show re-queue notice
 			feedbackCard.createDiv({
-				text: 'This question will appear again later.',
+				text: 'this question will appear again later.',
 				cls: 'quiz-learn-requeue-notice'
 			});
 		}

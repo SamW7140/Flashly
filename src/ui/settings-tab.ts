@@ -41,7 +41,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 		if (this.plugin.settings.parser.inline.enabled) {
 			new Setting(containerEl)
-				.setName('Enable Q::A format')
+				.setName('Enable q::a format')
 				.setDesc('Single-line question::answer format')
 				.addToggle(toggle => toggle
 					.setValue(this.plugin.settings.parser.inline.enableQA)
@@ -51,7 +51,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 					}));
 
 			new Setting(containerEl)
-				.setName('Enable ?? format')
+				.setName('Enable ?? Format')
 				.setDesc('Multi-line question/answer format')
 				.addToggle(toggle => toggle
 					.setValue(this.plugin.settings.parser.inline.enableMultiLine)
@@ -102,7 +102,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.setName('Flashcard tags')
 				.setDesc('Tags that mark notes for header parsing (comma-separated)')
 				.addText(text => text
-					.setPlaceholder('flashcards, cards')
+					.setPlaceholder('Flashcards, cards')
 					.setValue(this.plugin.settings.parser.header.flashcardTags.join(', '))
 					.onChange(async (value) => {
 						this.plugin.settings.parser.header.flashcardTags = 
@@ -174,7 +174,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName('Enable exclusion comments')
-				.setDesc('Allow %%NO_FLASHCARD%% to skip headers')
+				.setDesc('Allow %%no_flashcard%% to skip headers')
 				.addToggle(toggle => toggle
 					.setValue(this.plugin.settings.parser.header.enableExclusion)
 					.onChange(async (value) => {
@@ -187,7 +187,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 					.setName('Exclusion comment')
 					.setDesc('Comment text to exclude headers')
 					.addText(text => text
-						.setPlaceholder('%%NO_FLASHCARD%%')
+						.setPlaceholder('%%no_flashcard%%')
 						.setValue(this.plugin.settings.parser.header.exclusionComment)
 						.onChange(async (value) => {
 							this.plugin.settings.parser.header.exclusionComment = value;
@@ -218,11 +218,11 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Scheduler algorithm')
-			.setDesc('Choose between FSRS (default) or SM-2 fallback')
+			.setDesc('Choose between fsrs (default) or sm-2 fallback')
 			.addDropdown(dropdown => {
 				const scheduler = this.plugin.settings.review.scheduler;
-				dropdown.addOption('fsrs', 'FSRS (recommended)');
-				dropdown.addOption('sm2', 'SM-2 fallback');
+				dropdown.addOption('fsrs', 'Fsrs (recommended)');
+				dropdown.addOption('sm2', 'Sm-2 fallback');
 				dropdown.setValue(scheduler);
 				dropdown.onChange(async (value) => {
 					this.plugin.settings.review.scheduler = value as SchedulerType;
@@ -295,7 +295,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Keyboard shortcuts')
-				.setDesc('Enable keyboard controls (space, 1-4, Esc) in review sessions')
+				.setDesc('Enable keyboard controls (space, 1-4, esc) in review sessions')
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.review.enableKeyboardShortcuts)
 				.onChange(async (value) => {
@@ -324,9 +324,9 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.setName('AI provider')
 				.setDesc('Choose your AI provider for quiz generation')
 				.addDropdown(dropdown => dropdown
-					.addOption('openai', 'OpenAI (GPT-4, GPT-3.5)')
-					.addOption('anthropic', 'Anthropic (Claude)')
-					.addOption('gemini', 'Google Gemini')
+					.addOption('openai', 'Openai (gpt-4, gpt-3.5)')
+					.addOption('anthropic', 'Anthropic (claude)')
+					.addOption('gemini', 'Google gemini')
 					.addOption('custom', 'Custom API endpoint')
 					.setValue(this.plugin.settings.quiz.provider)
 					.onChange(async (value) => {
@@ -338,15 +338,15 @@ export class FlashlySettingTab extends PluginSettingTab {
 			// OpenAI Settings
 			if (this.plugin.settings.quiz.provider === 'openai') {
 				new Setting(containerEl)
-					.setName('OpenAI configuration')
+					.setName('Openai configuration')
 					.setHeading();
 
 				new Setting(containerEl)
 					.setName('API key')
-					.setDesc('Your OpenAI API key')
+					.setDesc('Your openai API key')
 					.addText(text => {
 						text.inputEl.type = 'password';
-						text.setPlaceholder('sk-...');
+						text.setPlaceholder('Sk-...');
 						text.setValue(this.plugin.settings.quiz.openai?.apiKey || '');
 						text.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.openai) {
@@ -362,11 +362,11 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 				new Setting(containerEl)
 					.setName('Model')
-					.setDesc('OpenAI model to use')
+					.setDesc('Openai model to use')
 					.addDropdown(dropdown => dropdown
-						.addOption('gpt-4', 'GPT-4 (most capable)')
-						.addOption('gpt-4-turbo', 'GPT-4 Turbo (faster)')
-						.addOption('gpt-3.5-turbo', 'GPT-3.5 Turbo (cheaper)')
+						.addOption('gpt-4', 'Gpt-4 (most capable)')
+						.addOption('gpt-4-turbo', 'Gpt-4 turbo (faster)')
+						.addOption('gpt-3.5-turbo', 'Gpt-3.5 turbo (cheaper)')
 						.setValue(this.plugin.settings.quiz.openai?.model || 'gpt-4')
 						.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.openai) {
@@ -388,10 +388,10 @@ export class FlashlySettingTab extends PluginSettingTab {
 
 				new Setting(containerEl)
 					.setName('API key')
-					.setDesc('Your Anthropic API key')
+					.setDesc('Your anthropic API key')
 					.addText(text => {
 						text.inputEl.type = 'password';
-						text.setPlaceholder('sk-ant-...');
+						text.setPlaceholder('Sk-ant-...');
 						text.setValue(this.plugin.settings.quiz.anthropic?.apiKey || '');
 						text.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.anthropic) {
@@ -409,10 +409,10 @@ export class FlashlySettingTab extends PluginSettingTab {
 					.setName('Model')
 					.setDesc('Anthropic model to use')
 					.addDropdown(dropdown => dropdown
-						.addOption('claude-3-5-sonnet-20241022', 'Claude 3.5 Sonnet')
-						.addOption('claude-3-opus-20240229', 'Claude 3 Opus')
-						.addOption('claude-3-sonnet-20240229', 'Claude 3 Sonnet')
-						.addOption('claude-3-haiku-20240307', 'Claude 3 Haiku')
+						.addOption('claude-3-5-sonnet-20241022', 'Claude 3.5 sonnet')
+						.addOption('claude-3-opus-20240229', 'Claude 3 opus')
+						.addOption('claude-3-sonnet-20240229', 'Claude 3 sonnet')
+						.addOption('claude-3-haiku-20240307', 'Claude 3 haiku')
 						.setValue(this.plugin.settings.quiz.anthropic?.model || 'claude-3-5-sonnet-20241022')
 						.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.anthropic) {
@@ -429,15 +429,15 @@ export class FlashlySettingTab extends PluginSettingTab {
 			// Gemini Settings
 			if (this.plugin.settings.quiz.provider === 'gemini') {
 				new Setting(containerEl)
-					.setName('Google Gemini configuration')
+					.setName('Google gemini configuration')
 					.setHeading();
 
 				new Setting(containerEl)
 					.setName('API key')
-					.setDesc('Your Google AI Studio API key')
+					.setDesc('Your google AI studio API key')
 					.addText(text => {
 						text.inputEl.type = 'password';
-						text.setPlaceholder('AIza...');
+						text.setPlaceholder('Aiza...');
 						text.setValue(this.plugin.settings.quiz.gemini?.apiKey || '');
 						text.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.gemini) {
@@ -455,11 +455,11 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.setName('Model')
 				.setDesc('Gemini model to use')
 				.addDropdown(dropdown => dropdown
-					.addOption('gemini-2.5-pro', 'Gemini 2.5 Pro (most capable, reasoning)')
+					.addOption('gemini-2.5-pro', 'Gemini 2.5 pro (most capable, reasoning)')
 					.addOption('gemini-2.5-flash', 'Gemini 2.5 Flash (fast, best price/performance)')
-					.addOption('gemini-2.0-flash', 'Gemini 2.0 Flash')
-					.addOption('gemini-1.5-pro', 'Gemini 1.5 Pro (legacy)')
-					.addOption('gemini-1.5-flash', 'Gemini 1.5 Flash (legacy)')
+					.addOption('gemini-2.0-flash', 'Gemini 2.0 flash')
+					.addOption('gemini-1.5-pro', 'Gemini 1.5 pro (legacy)')
+					.addOption('gemini-1.5-flash', 'Gemini 1.5 flash (legacy)')
 					.setValue(this.plugin.settings.quiz.gemini?.model || 'gemini-2.5-flash')
 						.onChange(async (value) => {
 							if (!this.plugin.settings.quiz.gemini) {
@@ -522,7 +522,7 @@ export class FlashlySettingTab extends PluginSettingTab {
 				.setName('Model name')
 				.setDesc('Model identifier')
 				.addText(text => {
-					text.setPlaceholder('model-name');
+					text.setPlaceholder('Model-name');
 					text.setValue(this.plugin.settings.quiz.custom?.model || '');
 					text.onChange(async (value) => {
 						if (!this.plugin.settings.quiz.custom) {

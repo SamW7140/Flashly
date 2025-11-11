@@ -31,10 +31,10 @@ export class ExportModal extends Modal {
 			.setName('Export format')
 			.setDesc('Choose the format for exported flashcards')
 			.addDropdown(dropdown => {
-				dropdown
-					.addOption('csv', 'CSV (generic)')
-					.addOption('csv-quizlet', 'CSV (Quizlet format)')
-					.addOption('anki', 'Anki (.apkg)')
+			dropdown
+				.addOption('csv', 'CSV (generic)')
+				.addOption('csv-quizlet', 'CSV (quizlet format)')
+				.addOption('anki', 'Anki (.apkg)')
 					.addOption('json', 'JSON')
 					.addOption('markdown', 'Markdown')
 					.setValue(this.format)
@@ -99,10 +99,10 @@ export class ExportModal extends Modal {
 				.onChange(value => this.includeTags = value)
 			);
 
-		new Setting(contentEl)
-			.setName('Include scheduling data')
-			.setDesc('Include FSRS scheduling information (review intervals, due dates)')
-			.addToggle(toggle => toggle
+	new Setting(contentEl)
+		.setName('Include scheduling data')
+		.setDesc('Include scheduling information (due dates, review history)')
+		.addToggle(toggle => toggle
 				.setValue(this.includeScheduling)
 				.onChange(value => this.includeScheduling = value)
 			);
@@ -170,9 +170,9 @@ export class ExportModal extends Modal {
 		const result = await this.exportService.export(options);
 		
 		if (result.success) {
-			new Notice(`✅ Exported ${result.cardCount} cards to ${result.filePath}`);
+			new Notice(`✅ exported ${result.cardCount} cards to ${result.filePath}`);
 		} else {
-			new Notice(`❌ Export failed: ${result.error}`);
+			new Notice(`❌ export failed: ${result.error}`);
 		}
 	}
 

@@ -42,12 +42,12 @@ export class QuizHistoryView extends ItemView {
 		return 'history';
 	}
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
 	async onOpen(): Promise<void> {
 		this.queueRender();
 	}
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
 	async onClose(): Promise<void> {
 		this.containerEl.empty();
 	}
@@ -530,12 +530,12 @@ class ExportFileModal extends Modal {
 
 		contentEl.createEl('h2', { text: 'Export quiz' });
 		contentEl.createEl('p', {
-			text: 'Choose where to save the exported quiz markdown file.'
+			text: 'Choose where to save the exported quiz Markdown file.'
 		});
 
 		const input = contentEl.createEl('input', {
 			type: 'text',
-			placeholder: 'File path (e.g., quizzes/my-quiz.md)',
+			placeholder: 'file path (e.g., quizzes/my-quiz.md)',
 			value: this.defaultName
 		});
 		input.addClass('quiz-export-input');

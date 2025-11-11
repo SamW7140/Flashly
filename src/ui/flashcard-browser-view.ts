@@ -44,7 +44,7 @@ export class FlashcardBrowserView extends ItemView {
     return 'layers';
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
   async onOpen(): Promise<void> {
     // Load component
     this.component.load();
@@ -91,7 +91,7 @@ export class FlashcardBrowserView extends ItemView {
     this.containerEl.setAttribute('tabindex', '-1');
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- Obsidian API requires async signature
+   
   async onClose(): Promise<void> {
     // Clean up animation timeout
     if (this.animationTimeoutId !== null) {
@@ -510,7 +510,7 @@ export class FlashcardBrowserView extends ItemView {
     // Back button
     const backBtn = header.createEl('button', {
       cls: 'back-to-decks-btn',
-      text: '← Back to decks',
+      text: '← back to decks',
     });
     backBtn.addEventListener('click', () => {
       this.viewModel.backToDeckList();
@@ -627,7 +627,7 @@ export class FlashcardBrowserView extends ItemView {
     // Previous button
     const prevBtn = nav.createEl('button', {
       cls: 'nav-btn prev-btn',
-      text: '← Previous',
+      text: '← previous',
     });
     prevBtn.disabled = state.currentCardIndex === 0;
     prevBtn.addEventListener('click', () => {
