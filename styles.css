@@ -1595,7 +1595,9 @@
   height: 100%;
   padding: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--background-primary);
+  box-sizing: border-box;
 }
 
 /* Stats Header */
@@ -3026,8 +3028,13 @@
 /* ========== QUIZ HISTORY VIEW ========== */
 
 .flashly-quiz-history-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .quiz-history-header {
