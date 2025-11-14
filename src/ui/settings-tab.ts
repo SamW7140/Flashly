@@ -609,14 +609,14 @@ export class FlashlySettingTab extends PluginSettingTab {
 			.setName('Default sort mode')
 			.setDesc('Default sorting for cards when browsing a deck')
 			.addDropdown(dropdown => dropdown
-				.addOption('created-desc', 'Most recently made')
-				.addOption('created-asc', 'Oldest first')
-				.addOption('updated-desc', 'Recently updated')
-				.addOption('updated-asc', 'Least recently updated')
-				.addOption('due-asc', 'Due soonest')
-				.addOption('due-desc', 'Due latest')
-				.addOption('deck-asc', 'Deck (A-Z)')
-				.addOption('deck-desc', 'Deck (Z-A)')
+				.addOption('created-desc', 'most recently made')
+				.addOption('created-asc', 'oldest first')
+				.addOption('updated-desc', 'recently updated')
+				.addOption('updated-asc', 'least recently updated')
+				.addOption('due-asc', 'due soonest')
+				.addOption('due-desc', 'due latest')
+				.addOption('deck-asc', 'deck (A-Z)')
+				.addOption('deck-desc', 'deck (Z-A)')
 				.setValue(this.plugin.settings.browser.defaultSort)
 				.onChange(async (value) => {
 					this.plugin.settings.browser.defaultSort = value as any;
