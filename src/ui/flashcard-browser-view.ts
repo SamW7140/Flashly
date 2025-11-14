@@ -540,14 +540,14 @@ export class FlashcardBrowserView extends ItemView {
     const sortSelect = sortContainer.createEl('select', { cls: 'card-sort-select' });
 
     const sortOptions: Array<{ value: SortOption; label: string }> = [
-      { value: 'created-desc', label: 'Most recently made' },
-      { value: 'created-asc', label: 'Oldest first' },
-      { value: 'updated-desc', label: 'Recently updated' },
-      { value: 'updated-asc', label: 'Least recently updated' },
-      { value: 'due-asc', label: 'Due soonest' },
-      { value: 'due-desc', label: 'Due latest' },
-      { value: 'deck-asc', label: 'Deck (A-Z)' },
-      { value: 'deck-desc', label: 'Deck (Z-A)' },
+      { value: 'created-desc', label: 'most recently made' },
+      { value: 'created-asc', label: 'oldest first' },
+      { value: 'updated-desc', label: 'recently updated' },
+      { value: 'updated-asc', label: 'least recently updated' },
+      { value: 'due-asc', label: 'due soonest' },
+      { value: 'due-desc', label: 'due latest' },
+      { value: 'deck-asc', label: 'deck (A-Z)' },
+      { value: 'deck-desc', label: 'deck (Z-A)' },
     ];
 
     const currentSort = this.viewModel.getSortBy();
