@@ -29,7 +29,7 @@ export class FlashcardBrowserView extends ItemView {
   constructor(leaf: WorkspaceLeaf, plugin: FlashlyPlugin) {
     super(leaf);
     this.plugin = plugin;
-    this.viewModel = new BrowserViewModel([]);
+    this.viewModel = new BrowserViewModel([], plugin.settings.browser.defaultSort);
   }
 
   getViewType(): string {

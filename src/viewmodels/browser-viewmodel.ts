@@ -64,8 +64,11 @@ export class BrowserViewModel {
     showingAnswer: false,
   };
 
-  constructor(cards: FlashlyCard[] = []) {
+  constructor(cards: FlashlyCard[] = [], defaultSort?: SortOption) {
     this.cards = cards;
+    if (defaultSort) {
+      this.sortBy = defaultSort;
+    }
   }
 
   /**
